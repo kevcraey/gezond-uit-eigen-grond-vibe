@@ -567,6 +567,22 @@ export class GezondWizard extends LitElement {
         if (addressStep) {
           await this._confirmAddressStep(addressStep);
         }
+        
+        // Resolve address using Geolocation API
+        try {
+          this.address = `Locatie bepalen...`;
+          const response = await fetch(`https://geo.api.vlaanderen.be/geolocation/v4/Location?xy=${centerX},${centerY}`);
+          const data = await response.json();
+          
+          if (data && data.LocationResult && data.LocationResult.length > 0) {
+            this.address = data.LocationResult[0].FormattedAddress;
+          } else {
+            this.address = `Locatie: ${centerX.toFixed(2)}, ${centerY.toFixed(2)}`;
+          }
+        } catch (e) {
+          console.error('Error fetching location address:', e);
+          this.address = `Locatie: ${centerX.toFixed(2)}, ${centerY.toFixed(2)}`;
+        }
       }
     }
   }

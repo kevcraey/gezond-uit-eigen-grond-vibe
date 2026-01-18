@@ -362,12 +362,12 @@
           ]
         }
       ],
-      "navigation": { "back": { "label": "Terug" }, "next": { "label": "Bekijk resultaten" } }
+      "navigation": { "back": { "label": "Terug" }, "next": { "label": "Naar overzicht" } }
     },
     {
       "id": "results",
-      "name": "Resultaat",
-      "title": "Resultaat",
+      "name": "Overzicht",
+      "title": "Overzicht",
       "description": "Hieronder vind je een overzicht van alle aanbevelingen op basis van je antwoorden.",
       "type": "results",
       "navigation": { "back": { "label": "Terug" }, "next": { "label": "Opnieuw beginnen" } }
