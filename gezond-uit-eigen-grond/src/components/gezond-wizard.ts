@@ -209,6 +209,11 @@ export class GezondWizard extends LitElement {
             color: #666;
             margin-bottom: 0.5rem;
         }
+
+        .alert-action-button::part(button) {
+            background-color: white !important;
+            /* Ensure text contrast if needed */
+        }
       `
     ];
   }
@@ -513,7 +518,7 @@ export class GezondWizard extends LitElement {
           <p>${unsafeHTML(result.description)}</p>
           ${result.button ? html`
             <div slot="actions">
-              <vl-button secondary @click=${() => window.open(result.button!.link, '_blank')}>${result.button.caption}</vl-button>
+              <vl-button secondary class="alert-action-button" @click=${() => window.open(result.button!.link, '_blank')}>${result.button.caption}</vl-button>
             </div>
           ` : ''}
         </vl-alert>
