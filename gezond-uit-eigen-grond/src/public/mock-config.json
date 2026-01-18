@@ -1,9 +1,10 @@
 {
   "checks": {
-    "contamination": true,
     "waterloop": false,
-    "busyRoad": true,
-    "pfasFireStation": false,
-    "industrial": true
+    "spoorweg": false,
+    "autoweg": false,
+    "pfas_zone": false,
+    "verontreinigd_perceel": false,
+    "industrieel": false
   }
 }

@@ -1,8 +1,8 @@
 {
-  "version": "2.1",
+  "version": "3.0",
   "general": {
     "title": "Gezond uit eigen grond",
-    "description": "Ontdek hier hoe een gezonde moestuin of kippenren eruitziet!",
+    "description": "De moestuin maakt een comeback in Vlaanderen. Mensen willen gezonde voeding uit eigen streek en gaan zelf aan de slag. Ontdek hier hoe een gezonde moestuin of kippenren eruitziet!",
     "advice": {
       "title": "Algemeen advies",
       "intro": "Met onze uitgebreidere checks kan je ook onderzoeken of er potentiële verontreinigingsbronnen in je tuin aanwezig zijn, of laat een bodemanalyse uitvoeren.",
@@ -16,252 +16,309 @@
       ]
     }
   },
-  "addressChecks": [
-    {
-      "id": "contamination",
-      "name": "Verontreinigd perceel",
-      "source": "ovam-databank",
-      "results": {
-        "true": {
-          "title": "Bodemverontreinigingslocatie gevonden",
-          "description": "Er zijn al gegevens over een <strong>bodemverontreinigingslocatie</strong> gevonden. Bent u de eigenaar van dit perceel? Meld u aan bij de <a href=\"https://www.ovam.be\">OVAM</a> om dit te bekijken.",
-          "button": {
-            "caption": "Vraag je bodemstalen aan",
-            "link": "/bodemstalen"
-          },
-          "type": "error",
-          "important": true
-        },
-        "false": {
-          "title": "Verontreinigd perceel",
-          "description": "Neen - Er is geen verontreiniging gekend voor dit perceel in de VL databank.",
-          "type": "success",
-          "important": false
-        }
-      }
-    },
+  "answers": [
     {
       "id": "waterloop",
+      "type": "computed",
       "name": "Waterloop langs perceel",
-      "source": "gis-waterloop",
-      "results": {
-        "true": {
-          "title": "Waterloop langs perceel en/of in fluviaal overstromingsgebied",
-          "description": "Je tuin ligt langs een waterloop. Vermijd het inrichten van een moestuin, fruitplanten of kippenren in de <strong>5-meter zone</strong> langs de waterloop.<br><br>In deze zone kan geruimd materiaal uit de waterloop zijn gedeponeerd.",
-          "type": "warning",
-          "important": false
-        },
-        "false": {
-          "title": "Waterloop langs perceel",
-          "description": "Neen - Geen waterloop binnen 5m van je perceel.",
-          "type": "success",
-          "important": false
-        }
-      }
+      "source": { "type": "wfs", "layer": "waterlopenkaart", "buffer": 5 }
     },
     {
-      "id": "busyRoad",
-      "name": "Drukke weg of spoorweg",
-      "source": "gis-roads",
-      "results": {
-        "true": {
-          "title": "Ligt je terrein naast een drukke weg of spoorweg?",
-          "description": "Ja - Laat minstens <strong>30 meter afstand</strong> tussen je groentetuin en de auto- of spoorweg. Leg tussenin een fysieke barrière aan.",
-          "type": "warning",
-          "important": false
-        },
-        "false": {
-          "title": "Ligt je terrein naast een drukke weg of spoorweg?",
-          "description": "Neen - Geen drukke wegen of spoorwegen in de nabijheid.",
-          "type": "success",
-          "important": false
-        }
-      }
+      "id": "spoorweg",
+      "type": "computed",
+      "name": "Nabij drukke spoorweg",
+      "source": { "type": "wfs", "layer": "spoorwegen", "buffer": 30 }
     },
     {
-      "id": "pfasFireStation",
-      "name": "PFAS no-regret zone",
-      "source": "gis-pfas",
-      "results": {
-        "true": {
-          "title": "PFAS no-regret zone",
-          "description": "Ja - Je grond ligt in de nabijheid van een brandweeroefenterrein of PFAS no-regret zone. Overweeg een <a href=\"/bodemanalyse\">bodemanalyse voor PFAS-stoffen</a>.",
-          "type": "warning",
-          "important": false
-        },
-        "false": {
-          "title": "PFAS no-regret zone",
-          "description": "Neen - Geen PFAS-risico in dit gebied.",
-          "type": "success",
-          "important": false
-        }
-      }
+      "id": "autoweg",
+      "type": "computed",
+      "name": "Nabij drukke autoweg",
+      "source": { "type": "wfs", "layer": "hoofdwegen", "buffer": 30 }
     },
     {
-      "id": "industrial",
-      "name": "Industriële activiteiten",
-      "source": "gis-industrial",
-      "results": {
-        "true": {
-          "title": "Industriële activiteiten",
-          "description": "Ja - Er zijn industriële activiteiten in de omgeving die mogelijk bodemverontreiniging kunnen veroorzaken.",
-          "type": "warning",
-          "important": false
-        },
-        "false": {
-          "title": "Industriële activiteiten",
-          "description": "Neen - Er zijn geen industriële activiteiten in de nabijheid gevonden.",
-          "type": "success",
-          "important": false
-        }
-      }
+      "id": "pfas_zone",
+      "type": "computed",
+      "name": "In PFAS no-regret zone",
+      "source": { "type": "wfs", "layer": "pfas_zones", "buffer": 0 }
+    },
+    {
+      "id": "verontreinigd_perceel",
+      "type": "computed",
+      "name": "Gekend verontreinigd perceel",
+      "source": { "type": "wfs", "layer": "ovam_verontreinigingen", "buffer": 0 }
+    },
+    {
+      "id": "industrieel",
+      "type": "computed",
+      "name": "Nabij industriële activiteit",
+      "source": { "type": "wfs", "layer": "industrie_zones", "buffer": 100 }
+    },
+    {
+      "id": "materialen",
+      "type": "input",
+      "name": "Bodemvreemde materialen"
+    },
+    {
+      "id": "asbest_aanwezig",
+      "type": "input",
+      "name": "Asbest aanwezig"
+    },
+    {
+      "id": "opslagtanks",
+      "type": "input",
+      "name": "Opslagtanks / oliegeur"
+    },
+    {
+      "id": "stoken",
+      "type": "input",
+      "name": "Verbranden / stoken"
+    },
+    {
+      "id": "pesticiden",
+      "type": "input",
+      "name": "Pesticiden gebruikt"
     }
   ],
+  "results": {
+    "dicht_bij_waterloop": {
+      "title": "Waterloop langs perceel",
+      "description": "Je tuin ligt langs een waterloop. Vermijd het inrichten van een moestuin in de <strong>5-meter zone</strong>.",
+      "type": "warning",
+      "important": false
+    },
+    "niet_dicht_bij_waterloop": {
+      "title": "Waterloop langs perceel",
+      "description": "Geen waterloop binnen 5m van je perceel.",
+      "type": "success",
+      "important": false
+    },
+    "nabij_drukke_weg": {
+      "title": "Nabij drukke weg of spoorweg",
+      "description": "Laat minstens <strong>30 meter</strong> afstand. Leg een fysieke barrière aan.",
+      "type": "warning",
+      "important": false
+    },
+    "niet_nabij_drukke_weg": {
+      "title": "Nabij drukke weg of spoorweg",
+      "description": "Geen drukke wegen of spoorwegen in de nabijheid.",
+      "type": "success",
+      "important": false
+    },
+    "in_pfas_zone": {
+      "title": "PFAS no-regret zone",
+      "description": "Je grond ligt in een PFAS zone. Overweeg een bodemanalyse.",
+      "type": "warning",
+      "important": false
+    },
+    "niet_in_pfas_zone": {
+      "title": "PFAS no-regret zone",
+      "description": "Geen PFAS-risico.",
+      "type": "success",
+      "important": false
+    },
+    "industrieel_ja": {
+      "title": "Industriële activiteiten",
+      "description": "Er zijn industriële activiteiten in de omgeving.",
+      "type": "warning",
+      "important": false
+    },
+    "industrieel_nee": {
+      "title": "Industriële activiteiten",
+      "description": "Geen industriële activiteiten in de nabijheid.",
+      "type": "success",
+      "important": false
+    },
+    "verontreinigd": {
+      "title": "Bodemverontreiniging gevonden",
+      "description": "Er is een <strong>bekende verontreiniging</strong> op dit perceel.",
+      "button": { "caption": "Vraag bodemstalen aan", "link": "/bodemstalen" },
+      "type": "error",
+      "important": true
+    },
+    "niet_verontreinigd": {
+      "title": "Verontreinigd perceel",
+      "description": "Geen verontreiniging gekend.",
+      "type": "success",
+      "important": false
+    },
+    "materialen_geen": {
+      "title": "Bodemvreemde materialen",
+      "description": "Geen risico - Geen bodemvreemde materialen.",
+      "type": "success",
+      "important": false
+    },
+    "materialen_beperkt": {
+      "title": "Bodemvreemde materialen",
+      "description": "Laag risico - Verwijder zichtbare materialen.",
+      "type": "warning",
+      "important": false
+    },
+    "materialen_assen": {
+      "title": "Bodemvreemde materialen - Assen",
+      "description": "Matig risico - Assen kunnen PAK en zware metalen bevatten.",
+      "type": "warning",
+      "important": false
+    },
+    "materialen_asbest": {
+      "title": "Bodemvreemde materialen - Asbest",
+      "description": "<strong>Hoog risico</strong> - Asbestresten gevonden.",
+      "button": { "caption": "Contacteer gespecialiseerde firma", "link": "/asbest" },
+      "type": "error",
+      "important": true
+    },
+    "materialen_veel": {
+      "title": "Bodemvreemde materialen",
+      "description": "<strong>Hoog risico</strong> - Veel materiaal. Overweeg toplaag vervangen.",
+      "type": "error",
+      "important": true
+    },
+    "assen_nabij_waterloop": {
+      "title": "Assen nabij waterloop - Extra risico",
+      "description": "Er zijn assen aangetroffen én je perceel ligt nabij een waterloop. <strong>Verhoogd risico op uitspoeling!</strong>",
+      "button": { "caption": "Vraag bodemanalyse aan", "link": "/bodemanalyse" },
+      "type": "error",
+      "important": true
+    },
+    "asbest_ja": {
+      "title": "Asbest",
+      "description": "<strong>Hoog risico</strong> - Asbesthoudend materiaal aanwezig.<ul><li>Vermijd deze zones</li><li>Verwijder via gespecialiseerde firma</li></ul>",
+      "button": { "caption": "Contacteer firma", "link": "/asbest" },
+      "type": "error",
+      "important": true
+    },
+    "asbest_nee": {
+      "title": "Asbest",
+      "description": "Geen asbesthoudend materiaal.",
+      "type": "success",
+      "important": false
+    },
+    "opslagtanks_ja": {
+      "title": "Opslagtanks / oliegeur",
+      "description": "<strong>Hoog risico</strong> - Kies andere plek op minstens 10m afstand.",
+      "button": { "caption": "Contacteer OVAM", "link": "https://ovam.be" },
+      "type": "error",
+      "important": true
+    },
+    "opslagtanks_nee": {
+      "title": "Opslagtanks / oliegeur",
+      "description": "Geen risico.",
+      "type": "success",
+      "important": false
+    },
+    "stoken_ja": {
+      "title": "Verbranden / stoken",
+      "description": "Matig risico - Assen kunnen PAK en zware metalen bevatten.",
+      "type": "warning",
+      "important": false
+    },
+    "stoken_nee": {
+      "title": "Verbranden / stoken",
+      "description": "Geen risico.",
+      "type": "success",
+      "important": false
+    },
+    "pesticiden_ja": {
+      "title": "Pesticiden",
+      "description": "Matig risico - Overweeg bodemanalyse.",
+      "type": "warning",
+      "important": false
+    },
+    "pesticiden_nee": {
+      "title": "Pesticiden",
+      "description": "Geen risico.",
+      "type": "success",
+      "important": false
+    }
+  },
+  "rules": [
+    { "condition": { "waterloop": true }, "result": "dicht_bij_waterloop", "priority": 10 },
+    { "condition": { "waterloop": false }, "result": "niet_dicht_bij_waterloop", "priority": 10 },
+    { "condition": { "spoorweg": true }, "result": "nabij_drukke_weg", "priority": 10 },
+    { "condition": { "autoweg": true }, "result": "nabij_drukke_weg", "priority": 10 },
+    { "condition": { "spoorweg": false, "autoweg": false }, "result": "niet_nabij_drukke_weg", "priority": 10 },
+    { "condition": { "pfas_zone": true }, "result": "in_pfas_zone", "priority": 10 },
+    { "condition": { "pfas_zone": false }, "result": "niet_in_pfas_zone", "priority": 10 },
+    { "condition": { "industrieel": true }, "result": "industrieel_ja", "priority": 10 },
+    { "condition": { "industrieel": false }, "result": "industrieel_nee", "priority": 10 },
+    { "condition": { "verontreinigd_perceel": true }, "result": "verontreinigd", "priority": 100 },
+    { "condition": { "verontreinigd_perceel": false }, "result": "niet_verontreinigd", "priority": 10 },
+    { "condition": { "materialen": "geen" }, "result": "materialen_geen", "priority": 10 },
+    { "condition": { "materialen": "beperkt" }, "result": "materialen_beperkt", "priority": 10 },
+    { "condition": { "materialen": "assen" }, "result": "materialen_assen", "priority": 10 },
+    { "condition": { "materialen": "asbest" }, "result": "materialen_asbest", "priority": 10 },
+    { "condition": { "materialen": "veel" }, "result": "materialen_veel", "priority": 10 },
+    { "condition": { "asbest_aanwezig": true }, "result": "asbest_ja", "priority": 10 },
+    { "condition": { "asbest_aanwezig": false }, "result": "asbest_nee", "priority": 10 },
+    { "condition": { "opslagtanks": true }, "result": "opslagtanks_ja", "priority": 10 },
+    { "condition": { "opslagtanks": false }, "result": "opslagtanks_nee", "priority": 10 },
+    { "condition": { "stoken": true }, "result": "stoken_ja", "priority": 10 },
+    { "condition": { "stoken": false }, "result": "stoken_nee", "priority": 10 },
+    { "condition": { "pesticiden": true }, "result": "pesticiden_ja", "priority": 10 },
+    { "condition": { "pesticiden": false }, "result": "pesticiden_nee", "priority": 10 },
+    { "condition": { "materialen": "assen", "waterloop": true }, "result": "assen_nabij_waterloop", "priority": 50 }
+  ],
   "steps": [
+    {
+      "id": "intro",
+      "name": "Advies",
+      "title": "Algemeen advies",
+      "type": "intro",
+      "navigation": { "back": null, "next": { "label": "Onderzoek mijn tuin" } }
+    },
     {
       "id": "address",
       "name": "Adres",
       "title": "Geef je adres in",
       "description": "Onderzoek of er potentiële risico's zijn op je perceel",
       "type": "address-input",
-      "triggersChecks": ["contamination", "waterloop", "busyRoad", "pfasFireStation", "industrial"],
+      "triggersAnswers": ["waterloop", "spoorweg", "autoweg", "pfas_zone", "verontreinigd_perceel", "industrieel"],
       "resultsTitle": "Aanbeveling op basis van je adres",
-      "navigation": {
-        "back": null,
-        "next": {
-          "label": "Volgende stap: Bodemvreemde materialen",
-          "requiresConfirmation": true
-        }
-      }
+      "navigation": { "back": { "label": "Terug" }, "next": { "label": "Volgende stap: Bodemvreemde materialen" } }
     },
     {
       "id": "materials",
       "name": "Materialen",
       "title": "Bodemvreemde materialen",
       "description": "Zijn er bodemvreemde materialen aanwezig in de bovenste 30 cm van uw bodem?",
-      "helpText": "Let op: kiezels, as, stukjes baksteen, betonresten, asbest, schroot, plastic, glas, enz.",
-      "helpLink": {
-        "label": "Hoe herken je bodemvreemde materialen in je tuin?",
-        "url": "/help/materialen"
-      },
+      "helpLink": { "label": "Hoe herken je bodemvreemde materialen?", "url": "/help/materialen" },
       "type": "question",
       "resultsTitle": "Aanbeveling op basis van bodemvreemde materialen",
       "questions": [
         {
-          "id": "materialsPresent",
+          "answerId": "materialen",
           "type": "radio",
           "layout": "vertical",
           "options": [
-            {
-              "value": "geen",
-              "label": "Geen van onderstaande",
-              "result": {
-                "title": "Bodemvreemde materialen",
-                "description": "Geen risico - Geen bodemvreemde materialen aangetroffen.",
-                "type": "success",
-                "important": false
-              }
-            },
-            {
-              "value": "beperkt",
-              "label": "Beperkte hoeveelheid (baksteenresten, betonbrokken, tegelresten, schroot, plastic, glas,…)",
-              "result": {
-                "title": "Bodemvreemde materialen",
-                "description": "Laag risico - Verwijder indien mogelijk de zichtbare bodemvreemde materialen uit je tuin.",
-                "type": "warning",
-                "important": false
-              }
-            },
-            {
-              "value": "assen",
-              "label": "Assen (PAK, ZM)",
-              "result": {
-                "title": "Bodemvreemde materialen - Assen",
-                "description": "Matig risico - Assen kunnen <strong>PAK en zware metalen</strong> bevatten. Overweeg een <a href=\"/bodemanalyse\">bodemanalyse</a>.",
-                "type": "warning",
-                "important": false
-              }
-            },
-            {
-              "value": "asbest",
-              "label": "Asbestresten/asbesthoudende materialen",
-              "result": {
-                "title": "Bodemvreemde materialen - Asbest",
-                "description": "<strong>Hoog risico</strong> - Asbestresten zijn aangetroffen.<ul><li>Vermijd contact met deze materialen</li><li>Overweeg professionele verwijdering</li></ul>",
-                "button": {
-                  "caption": "Contacteer een gespecialiseerde firma",
-                  "link": "/asbest-verwijdering"
-                },
-                "type": "error",
-                "important": true
-              }
-            },
-            {
-              "value": "veel",
-              "label": "Veel aangetroffen",
-              "result": {
-                "title": "Bodemvreemde materialen",
-                "description": "<strong>Hoog risico</strong> - Veel bodemvreemd materiaal aangetroffen. Overweeg vervanging van de toplaag door schone teelaarde.",
-                "type": "error",
-                "important": true
-              }
-            }
+            { "value": "geen", "label": "Geen van onderstaande" },
+            { "value": "beperkt", "label": "Beperkte hoeveelheid (baksteenresten, betonbrokken, etc.)" },
+            { "value": "assen", "label": "Assen (PAK, ZM)" },
+            { "value": "asbest", "label": "Asbestresten/asbesthoudende materialen" },
+            { "value": "veel", "label": "Veel aangetroffen" }
           ]
         }
       ],
-      "navigation": {
-        "back": { "label": "Terug" },
-        "next": { "label": "Volgende stap: Asbest", "requiresConfirmation": true }
-      }
+      "navigation": { "back": { "label": "Terug" }, "next": { "label": "Volgende stap: Asbest" } }
     },
     {
       "id": "asbest",
       "name": "Asbest",
       "title": "Asbest",
-      "description": "Zijn er asbesthoudende daken of wanden waarvan het water afloopt naar je moestuin of kippenren? Zijn er asbesthoudende bloembakken/tuinmateriaal aanwezig?",
-      "helpLink": {
-        "label": "Hoe kan ik asbest herkennen?",
-        "url": "/help/asbest"
-      },
+      "description": "Zijn er asbesthoudende daken of wanden waarvan het water afloopt naar je moestuin of kippenren?",
+      "helpLink": { "label": "Hoe kan ik asbest herkennen?", "url": "/help/asbest" },
       "type": "question",
       "resultsTitle": "Aanbeveling op basis van asbest",
       "questions": [
         {
-          "id": "asbestPresent",
+          "answerId": "asbest_aanwezig",
           "type": "radio",
           "layout": "vertical",
           "options": [
-            {
-              "value": "nee",
-              "label": "Neen",
-              "result": {
-                "title": "Asbest",
-                "description": "Geen risico - Geen asbesthoudend materiaal aanwezig.",
-                "type": "success",
-                "important": false
-              }
-            },
-            {
-              "value": "ja",
-              "label": "Ja",
-              "result": {
-                "title": "Asbest",
-                "description": "<strong>Hoog risico</strong> - Er is asbesthoudend materiaal aanwezig. Asbesthoudend materiaal kan degraderen en losse asbestvezels vrijgeven. Deze zijn <strong>zeer schadelijk</strong>.<ul><li>Vermijd het om deze zones te betreden</li><li>Verwijder via een gespecialiseerde firma</li><li>Overweeg de toplaag te vervangen</li></ul>",
-                "button": {
-                  "caption": "Contacteer een gespecialiseerde firma",
-                  "link": "/asbest-verwijdering"
-                },
-                "type": "error",
-                "important": true
-              }
-            }
+            { "value": false, "label": "Neen" },
+            { "value": true, "label": "Ja" }
           ]
         }
       ],
-      "navigation": {
-        "back": { "label": "Terug" },
-        "next": { "label": "Volgende stap: Bodemverontreiniging", "requiresConfirmation": true }
-      }
+      "navigation": { "back": { "label": "Terug" }, "next": { "label": "Volgende stap: Bodemverontreiniging" } }
     },
     {
       "id": "pollution",
@@ -272,101 +329,48 @@
       "resultsTitle": "Aanbeveling op basis van bodemverontreiniging",
       "questions": [
         {
-          "id": "pollutionOil",
+          "answerId": "opslagtanks",
           "title": "Opslagtanks / oliegeur?",
-          "description": "Heb je weet van opslagtanks (bvb voor stookolie), morsen van smeermiddelen, of merk je een oliegeur op?",
+          "description": "Heb je weet van opslagtanks, morsen van smeermiddelen, of merk je een oliegeur op?",
           "type": "radio",
           "layout": "vertical",
           "options": [
-            {
-              "value": "nee",
-              "label": "Neen",
-              "result": {
-                "title": "Opslagtanks / oliegeur",
-                "description": "Geen risico - Geen opslagtanks of oliegeur aanwezig.",
-                "type": "success",
-                "important": false
-              }
-            },
-            {
-              "value": "ja",
-              "label": "Ja",
-              "result": {
-                "title": "Opslagtanks / oliegeur",
-                "description": "<strong>Hoog risico</strong> - Merk je een oliegeur op?<ul><li>Kies een andere plek op minstens <strong>10 meter</strong> afstand</li><li>Contacteer de <a href=\"https://www.ovam.be\">OVAM</a> of een eBSD</li></ul>",
-                "button": {
-                  "caption": "Contacteer OVAM",
-                  "link": "https://www.ovam.be"
-                },
-                "type": "error",
-                "important": true
-              }
-            }
+            { "value": false, "label": "Neen" },
+            { "value": true, "label": "Ja" }
           ]
         },
         {
-          "id": "pollutionBurning",
+          "answerId": "stoken",
           "title": "Verbranden van afval, stoken, kachels?",
-          "description": "Heb je weet van verbranden van afval, regelmatig stoken, of werden assen uitgespreid over de tuin?",
+          "description": "Heb je weet van verbranden van afval, regelmatig stoken, of wurden assen uitgespreid?",
           "type": "radio",
           "layout": "vertical",
           "options": [
-            {
-              "value": "nee",
-              "label": "Neen",
-              "result": {
-                "title": "Verbranden / stoken",
-                "description": "Geen risico - Geen verbranding of stoken bekend.",
-                "type": "success",
-                "important": false
-              }
-            },
-            {
-              "value": "ja",
-              "label": "Ja",
-              "result": {
-                "title": "Verbranden / stoken",
-                "description": "Matig risico - Assen kunnen <strong>PAK en zware metalen</strong> bevatten. Vermijd uitspreiden in je moestuin. Overweeg een <a href=\"/bodemanalyse\">bodemanalyse</a>.",
-                "type": "warning",
-                "important": false
-              }
-            }
+            { "value": false, "label": "Neen" },
+            { "value": true, "label": "Ja" }
           ]
         },
         {
-          "id": "pollutionPesticides",
+          "answerId": "pesticiden",
           "title": "Pesticiden?",
           "description": "Heb je weet van het gebruik van pesticiden op je perceel?",
           "type": "radio",
           "layout": "vertical",
           "options": [
-            {
-              "value": "nee",
-              "label": "Neen",
-              "result": {
-                "title": "Pesticiden",
-                "description": "Geen risico - Geen pesticidengebruik bekend.",
-                "type": "success",
-                "important": false
-              }
-            },
-            {
-              "value": "ja",
-              "label": "Ja",
-              "result": {
-                "title": "Pesticiden",
-                "description": "Matig risico - Er zijn pesticiden gebruikt. Overweeg een <a href=\"/bodemanalyse\">bodemanalyse</a>.",
-                "type": "warning",
-                "important": false
-              }
-            }
+            { "value": false, "label": "Neen" },
+            { "value": true, "label": "Ja" }
           ]
         }
       ],
-      "navigation": {
-        "back": { "label": "Terug" },
-        "next": { "label": "Klaar", "requiresConfirmation": true }
-      }
+      "navigation": { "back": { "label": "Terug" }, "next": { "label": "Bekijk resultaten" } }
+    },
+    {
+      "id": "results",
+      "name": "Resultaat",
+      "title": "Resultaat",
+      "description": "Hieronder vind je een overzicht van alle aanbevelingen op basis van je antwoorden.",
+      "type": "results",
+      "navigation": { "back": { "label": "Terug" }, "next": { "label": "Opnieuw beginnen" } }
     }
   ]
 }

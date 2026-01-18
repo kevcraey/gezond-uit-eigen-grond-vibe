@@ -1,0 +1,498 @@
+# Gezond Grond Tool - Business Rules Configuration v3
+# =====================================================
+# Clean separation: Answers → Rules → Results
+
+version: "3.0"
+
+# =============================================================================
+# ANTWOORDEN (ANSWERS)
+# =============================================================================
+# Twee types antwoorden:
+# 1. "computed" - automatisch berekend uit GIS/WFS op basis van adres
+# 2. "input" - rechtstreeks door gebruiker ingevoerd
+#
+# Elke answer heeft een id en mogelijke waarden (meestal true/false of string opties)
+# =============================================================================
+
+answers:
+  # ----- COMPUTED ANSWERS (van GIS/WFS) -----
+  - id: "waterloop"
+    type: "computed"
+    name: "Waterloop langs perceel"
+    source:
+      type: "wfs"
+      url: "https://geoserver.example.com/wfs"
+      layer: "waterlopenkaart"
+      # buffer in meters rond perceel
+      buffer: 5
+    # mogelijke waarden
+    values: [true, false]
+
+  - id: "spoorweg"
+    type: "computed"
+    name: "Nabij drukke spoorweg"
+    source:
+      type: "wfs"
+      url: "https://geoserver.example.com/wfs"
+      layer: "spoorwegen"
+      buffer: 30
+    values: [true, false]
+
+  - id: "autoweg"
+    type: "computed"
+    name: "Nabij drukke autoweg"
+    source:
+      type: "wfs"
+      url: "https://geoserver.example.com/wfs"
+      layer: "hoofdwegen"
+      buffer: 30
+    values: [true, false]
+
+  - id: "pfas_zone"
+    type: "computed"
+    name: "In PFAS no-regret zone"
+    source:
+      type: "wfs"
+      url: "https://geoserver.example.com/wfs"
+      layer: "pfas_zones"
+      buffer: 0
+    values: [true, false]
+
+  - id: "verontreinigd_perceel"
+    type: "computed"
+    name: "Gekend verontreinigd perceel"
+    source:
+      type: "wfs"
+      url: "https://geoserver.example.com/wfs"
+      layer: "ovam_verontreinigingen"
+      buffer: 0
+    values: [true, false]
+
+  - id: "industrieel"
+    type: "computed"
+    name: "Nabij industriële activiteit"
+    source:
+      type: "wfs"
+      url: "https://geoserver.example.com/wfs"
+      layer: "industrie_zones"
+      buffer: 100
+    values: [true, false]
+
+  # ----- INPUT ANSWERS (van gebruiker) -----
+  - id: "materialen"
+    type: "input"
+    name: "Bodemvreemde materialen"
+    values: ["geen", "beperkt", "assen", "asbest", "veel"]
+
+  - id: "asbest_aanwezig"
+    type: "input"
+    name: "Asbest aanwezig"
+    values: [true, false]
+
+  - id: "opslagtanks"
+    type: "input"
+    name: "Opslagtanks / oliegeur"
+    values: [true, false]
+
+  - id: "stoken"
+    type: "input"
+    name: "Verbranden / stoken"
+    values: [true, false]
+
+  - id: "pesticiden"
+    type: "input"
+    name: "Pesticiden gebruikt"
+    values: [true, false]
+
+# =============================================================================
+# RESULTATEN (RESULTS)
+# =============================================================================
+# Alle mogelijke resultaten/aanbevelingen die getoond kunnen worden
+# Elk resultaat heeft een uniek id
+# =============================================================================
+
+results:
+  # --- Waterloop ---
+  dicht_bij_waterloop:
+    title: "Waterloop langs perceel"
+    description: "Je tuin ligt langs een waterloop. Vermijd het inrichten van een moestuin in de <strong>5-meter zone</strong>."
+    type: "warning"
+    important: false
+
+  niet_dicht_bij_waterloop:
+    title: "Waterloop langs perceel"
+    description: "Geen waterloop binnen 5m van je perceel."
+    type: "success"
+    important: false
+
+  # --- Spoorweg/Autoweg ---
+  nabij_drukke_weg:
+    title: "Nabij drukke weg of spoorweg"
+    description: "Laat minstens <strong>30 meter</strong> afstand. Leg een fysieke barrière aan."
+    type: "warning"
+    important: false
+
+  niet_nabij_drukke_weg:
+    title: "Nabij drukke weg of spoorweg"
+    description: "Geen drukke wegen of spoorwegen in de nabijheid."
+    type: "success"
+    important: false
+
+  # --- PFAS ---
+  in_pfas_zone:
+    title: "PFAS no-regret zone"
+    description: "Je grond ligt in een PFAS zone. Overweeg een bodemanalyse."
+    type: "warning"
+    important: false
+
+  niet_in_pfas_zone:
+    title: "PFAS no-regret zone"
+    description: "Geen PFAS-risico."
+    type: "success"
+    important: false
+
+  # --- Verontreiniging ---
+  verontreinigd:
+    title: "Bodemverontreiniging gevonden"
+    description: "Er is een <strong>bekende verontreiniging</strong> op dit perceel."
+    button:
+      caption: "Vraag bodemstalen aan"
+      link: "/bodemstalen"
+    type: "error"
+    important: true
+
+  niet_verontreinigd:
+    title: "Verontreinigd perceel"
+    description: "Geen verontreiniging gekend."
+    type: "success"
+    important: false
+
+  # --- Materialen ---
+  materialen_geen:
+    title: "Bodemvreemde materialen"
+    description: "Geen risico - Geen bodemvreemde materialen."
+    type: "success"
+    important: false
+
+  materialen_beperkt:
+    title: "Bodemvreemde materialen"
+    description: "Laag risico - Verwijder zichtbare materialen."
+    type: "warning"
+    important: false
+
+  materialen_assen:
+    title: "Bodemvreemde materialen - Assen"
+    description: "Matig risico - Assen kunnen PAK en zware metalen bevatten."
+    type: "warning"
+    important: false
+
+  materialen_asbest:
+    title: "Bodemvreemde materialen - Asbest"
+    description: "<strong>Hoog risico</strong> - Asbestresten gevonden."
+    button:
+      caption: "Contacteer gespecialiseerde firma"
+      link: "/asbest"
+    type: "error"
+    important: true
+
+  materialen_veel:
+    title: "Bodemvreemde materialen"
+    description: "<strong>Hoog risico</strong> - Veel materiaal. Overweeg toplaag vervangen."
+    type: "error"
+    important: true
+
+  # --- Gecombineerde resultaten ---
+  assen_nabij_waterloop:
+    title: "Assen nabij waterloop - Extra risico"
+    description: "Er zijn assen aangetroffen én je perceel ligt nabij een waterloop. <strong>Verhoogd risico op uitspoeling!</strong> Overweeg dringend een bodemanalyse."
+    button:
+      caption: "Vraag bodemanalyse aan"
+      link: "/bodemanalyse"
+    type: "error"
+    important: true
+
+  # --- Asbest ---
+  asbest_ja:
+    title: "Asbest"
+    description: |
+      <strong>Hoog risico</strong> - Asbesthoudend materiaal aanwezig.
+      <ul>
+        <li>Vermijd deze zones</li>
+        <li>Verwijder via gespecialiseerde firma</li>
+      </ul>
+    button:
+      caption: "Contacteer firma"
+      link: "/asbest"
+    type: "error"
+    important: true
+
+  asbest_nee:
+    title: "Asbest"
+    description: "Geen asbesthoudend materiaal."
+    type: "success"
+    important: false
+
+  # --- Opslagtanks ---
+  opslagtanks_ja:
+    title: "Opslagtanks / oliegeur"
+    description: "<strong>Hoog risico</strong> - Kies andere plek op minstens 10m afstand."
+    button:
+      caption: "Contacteer OVAM"
+      link: "https://ovam.be"
+    type: "error"
+    important: true
+
+  opslagtanks_nee:
+    title: "Opslagtanks / oliegeur"
+    description: "Geen risico."
+    type: "success"
+    important: false
+
+  # --- Stoken ---
+  stoken_ja:
+    title: "Verbranden / stoken"
+    description: "Matig risico - Assen kunnen PAK en zware metalen bevatten."
+    type: "warning"
+    important: false
+
+  stoken_nee:
+    title: "Verbranden / stoken"
+    description: "Geen risico."
+    type: "success"
+    important: false
+
+  # --- Pesticiden ---
+  pesticiden_ja:
+    title: "Pesticiden"
+    description: "Matig risico - Overweeg bodemanalyse."
+    type: "warning"
+    important: false
+
+  pesticiden_nee:
+    title: "Pesticiden"
+    description: "Geen risico."
+    type: "success"
+    important: false
+
+# =============================================================================
+# REGELS (RULES)
+# =============================================================================
+# Regels koppelen antwoord-combinaties aan resultaten
+# 
+# Syntax:
+#   condition: welke antwoorden moeten matchen
+#   result: welk resultaat tonen (ref naar results.id)
+#   priority: hogere priority = eerder evalueren (voor conflicten)
+#
+# Conditions kunnen AND combinaties zijn (alle moeten matchen)
+# =============================================================================
+
+rules:
+  # --- Enkelvoudige regels ---
+  
+  # Waterloop
+  - condition:
+      waterloop: true
+    result: "dicht_bij_waterloop"
+    priority: 10
+
+  - condition:
+      waterloop: false
+    result: "niet_dicht_bij_waterloop"
+    priority: 10
+
+  # Spoorweg OF Autoweg (beide triggeren zelfde result)
+  - condition:
+      spoorweg: true
+    result: "nabij_drukke_weg"
+    priority: 10
+
+  - condition:
+      autoweg: true
+    result: "nabij_drukke_weg"
+    priority: 10
+
+  - condition:
+      spoorweg: false
+      autoweg: false
+    result: "niet_nabij_drukke_weg"
+    priority: 10
+
+  # PFAS
+  - condition:
+      pfas_zone: true
+    result: "in_pfas_zone"
+    priority: 10
+
+  - condition:
+      pfas_zone: false
+    result: "niet_in_pfas_zone"
+    priority: 10
+
+  # Verontreiniging
+  - condition:
+      verontreinigd_perceel: true
+    result: "verontreinigd"
+    priority: 100  # hoge priority want belangrijk
+
+  - condition:
+      verontreinigd_perceel: false
+    result: "niet_verontreinigd"
+    priority: 10
+
+  # Materialen 
+  - condition:
+      materialen: "geen"
+    result: "materialen_geen"
+    priority: 10
+
+  - condition:
+      materialen: "beperkt"
+    result: "materialen_beperkt"
+    priority: 10
+
+  - condition:
+      materialen: "assen"
+    result: "materialen_assen"
+    priority: 10
+
+  - condition:
+      materialen: "asbest"
+    result: "materialen_asbest"
+    priority: 10
+
+  - condition:
+      materialen: "veel"
+    result: "materialen_veel"
+    priority: 10
+
+  # Asbest
+  - condition:
+      asbest_aanwezig: true
+    result: "asbest_ja"
+    priority: 10
+
+  - condition:
+      asbest_aanwezig: false
+    result: "asbest_nee"
+    priority: 10
+
+  # Opslagtanks
+  - condition:
+      opslagtanks: true
+    result: "opslagtanks_ja"
+    priority: 10
+
+  - condition:
+      opslagtanks: false
+    result: "opslagtanks_nee"
+    priority: 10
+
+  # Stoken
+  - condition:
+      stoken: true
+    result: "stoken_ja"
+    priority: 10
+
+  - condition:
+      stoken: false
+    result: "stoken_nee"
+    priority: 10
+
+  # Pesticiden
+  - condition:
+      pesticiden: true
+    result: "pesticiden_ja"
+    priority: 10
+
+  - condition:
+      pesticiden: false
+    result: "pesticiden_nee"
+    priority: 10
+
+  # --- GECOMBINEERDE REGELS (hogere priority) ---
+  
+  # Assen + Waterloop = extra risico
+  - condition:
+      materialen: "assen"
+      waterloop: true
+    result: "assen_nabij_waterloop"
+    priority: 50  # hogere priority dan losse regels
+
+# =============================================================================
+# WIZARD STEPS (UI flow)
+# =============================================================================
+# Welke vragen worden wanneer gesteld
+# =============================================================================
+
+steps:
+  - id: "intro"
+    name: "Advies"
+    title: "Algemeen advies"
+    type: "intro"
+
+  - id: "address"
+    name: "Adres"
+    title: "Geef je adres in"
+    type: "address-input"
+    # Welke computed answers worden hier getriggerd
+    triggersAnswers: ["waterloop", "spoorweg", "autoweg", "pfas_zone", "verontreinigd_perceel", "industrieel"]
+
+  - id: "materials"
+    name: "Materialen"
+    title: "Bodemvreemde materialen"
+    type: "question"
+    questions:
+      - answerId: "materialen"
+        label: "Welke materialen zijn aanwezig?"
+        options:
+          - value: "geen"
+            label: "Geen van onderstaande"
+          - value: "beperkt"
+            label: "Beperkte hoeveelheid"
+          - value: "assen"
+            label: "Assen (PAK, ZM)"
+          - value: "asbest"
+            label: "Asbestresten"
+          - value: "veel"
+            label: "Veel aangetroffen"
+
+  - id: "asbest"
+    name: "Asbest"
+    title: "Asbest"
+    type: "question"
+    questions:
+      - answerId: "asbest_aanwezig"
+        label: "Zijn er asbesthoudende materialen?"
+        options:
+          - value: false
+            label: "Neen"
+          - value: true
+            label: "Ja"
+
+  - id: "pollution"
+    name: "Verontreiniging"
+    title: "Bodemverontreiniging"
+    type: "question"
+    questions:
+      - answerId: "opslagtanks"
+        title: "Opslagtanks / oliegeur?"
+        options:
+          - value: false
+            label: "Neen"
+          - value: true
+            label: "Ja"
+      - answerId: "stoken"
+        title: "Verbranden / stoken?"
+        options:
+          - value: false
+            label: "Neen"
+          - value: true
+            label: "Ja"
+      - answerId: "pesticiden"
+        title: "Pesticiden?"
+        options:
+          - value: false
+            label: "Neen"
+          - value: true
+            label: "Ja"

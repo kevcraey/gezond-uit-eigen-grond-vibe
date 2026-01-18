@@ -1,9 +1,12 @@
-// Wizard Configuration Types
+// Wizard Configuration Types v3
+// Rule-based business logic
 
 export interface WizardConfig {
   version: string;
   general: GeneralConfig;
-  addressChecks: AddressCheck[];
+  answers: Answer[];
+  results: { [id: string]: Result };
+  rules: Rule[];
   steps: Step[];
 }
 
@@ -17,6 +20,33 @@ export interface GeneralConfig {
   };
 }
 
+// =============================================================================
+// ANSWERS
+// =============================================================================
+
+export type AnswerValue = string | boolean | number;
+
+export interface Answer {
+  id: string;
+  type: 'computed' | 'input';
+  name: string;
+  source?: {
+    type: 'wfs';
+    layer: string;
+    buffer: number;
+    url?: string;
+  };
+}
+
+// Runtime state: collected answers
+export interface AnswerState {
+  [answerId: string]: AnswerValue | undefined;
+}
+
+// =============================================================================
+// RESULTS
+// =============================================================================
+
 export interface Result {
   title: string;
   description: string;  // HTML allowed
@@ -28,24 +58,27 @@ export interface Result {
   important: boolean;  // true = normal alert, false = naked alert
 }
 
-export interface AddressCheck {
-  id: string;
-  name: string;
-  source: string;
-  results: {
-    true: Result;
-    false: Result;
-  };
+// =============================================================================
+// RULES
+// =============================================================================
+
+// Condition: all keys must match (AND logic)
+export interface RuleCondition {
+  [answerId: string]: AnswerValue;
 }
 
-export interface QuestionOption {
-  value: string;
-  label: string;
-  result: Result;
+export interface Rule {
+  condition: RuleCondition;
+  result: string;  // reference to results[id]
+  priority: number;  // higher = evaluated first
 }
 
-export interface Question {
-  id: string;
+// =============================================================================
+// STEPS
+// =============================================================================
+
+export interface StepQuestion {
+  answerId: string;
   title?: string;
   description?: string;
   type: 'radio';
@@ -53,35 +86,77 @@ export interface Question {
   options: QuestionOption[];
 }
 
+export interface QuestionOption {
+  value: AnswerValue;
+  label: string;
+}
+
 export interface Step {
   id: string;
   name: string;
   title: string;
-  description: string;
-  helpText?: string;
+  description?: string;
   helpLink?: {
     label: string;
     url: string;
   };
-  type: 'address-input' | 'question';
-  triggersChecks?: string[];
-  resultsTitle: string;
-  questions?: Question[];
+  type: 'intro' | 'address-input' | 'question' | 'results';
+  triggersAnswers?: string[];  // for address-input: which computed answers
+  resultsTitle?: string;
+  questions?: StepQuestion[];
   navigation: {
     back: { label: string } | null;
-    next: {
-      label: string;
-      requiresConfirmation: boolean;
-    };
+    next: { label: string };
   };
 }
 
-// Answer state type
-export interface WizardAnswers {
-  [questionId: string]: string;
+// =============================================================================
+// RULE ENGINE
+// =============================================================================
+
+/**
+ * Evaluate all rules against current answers and return matching results
+ */
+export function evaluateRules(
+  rules: Rule[],
+  results: { [id: string]: Result },
+  answers: AnswerState
+): Result[] {
+  // Sort by priority (highest first)
+  const sortedRules = [...rules].sort((a, b) => b.priority - a.priority);
+  
+  const matchedResults: Result[] = [];
+  const usedResultIds = new Set<string>();
+  
+  for (const rule of sortedRules) {
+    // Check if all conditions match
+    const conditionMatches = Object.entries(rule.condition).every(
+      ([answerId, expectedValue]) => {
+        const actualValue = answers[answerId];
+        return actualValue === expectedValue;
+      }
+    );
+    
+    if (conditionMatches && !usedResultIds.has(rule.result)) {
+      const result = results[rule.result];
+      if (result) {
+        matchedResults.push(result);
+        usedResultIds.add(rule.result);
+      }
+    }
+  }
+  
+  return matchedResults;
 }
 
-// Check results type
-export interface CheckResults {
-  [checkId: string]: boolean;
+/**
+ * Get all rules that involve the given answer IDs
+ */
+export function getRulesForAnswers(
+  rules: Rule[],
+  answerIds: string[]
+): Rule[] {
+  return rules.filter(rule => 
+    Object.keys(rule.condition).some(id => answerIds.includes(id))
+  );
 }

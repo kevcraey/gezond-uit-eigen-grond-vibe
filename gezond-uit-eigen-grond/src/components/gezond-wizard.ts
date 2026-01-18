@@ -8,9 +8,17 @@ import { VlRadioComponent, VlRadioGroupComponent } from '@domg-wc/components/for
 import { VlMap, VlMapBaseLayerGRBGray, VlMapFeaturesLayer, VlMapLayerCircleStyle } from '@domg-wc/map';
 import { vlContentBlockStyles, vlGridStyles, vlGroupStyles } from '@domg-wc/styles';
 import { LitElement, TemplateResult, css, html, nothing } from 'lit';
-import { customElement, state, query } from 'lit/decorators.js';
+import { customElement, state } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
-import { WizardConfig, Step, Question, Result, CheckResults, WizardAnswers } from '../models/wizard-config';
+import { 
+  WizardConfig, 
+  Step, 
+  StepQuestion, 
+  Result, 
+  AnswerState, 
+  evaluateRules,
+  getRulesForAnswers
+} from '../models/wizard-config';
 
 registerWebComponents([
   VlWizard,
@@ -40,11 +48,8 @@ export class GezondWizard extends LitElement {
   @state() private suggestions: any[] = [];
   @state() private showSuggestions: boolean = false;
   
-  // Check results from address lookup
-  @state() private checkResults: CheckResults = {};
-  
-  // Answers per question
-  @state() private answers: WizardAnswers = {};
+  // All answers (computed + input)
+  @state() private answers: AnswerState = {};
   
   // Confirmed steps (for showing results)
   @state() private confirmedSteps: Set<string> = new Set();
@@ -89,11 +94,6 @@ export class GezondWizard extends LitElement {
             position: relative;
         }
         
-        .check-list {
-            margin-top: 1rem;
-            padding-left: 1.5rem;
-        }
-        
         .button-spacer {
             margin-top: 1.5rem;
         }
@@ -122,27 +122,25 @@ export class GezondWizard extends LitElement {
             margin-bottom: 1rem;
         }
         
-        .advice-section {
-            margin-top: 2rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid #e0e0e0;
-        }
-        
-        .advice-section ul {
-            margin-top: 0.5rem;
-            padding-left: 1.5rem;
-        }
-        
-        .advice-section li {
-            margin-bottom: 0.5rem;
-        }
-        
         .radio-group-vertical {
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .radio-group-vertical vl-radio-group {
             display: flex;
             flex-direction: column;
             gap: 0.75rem;
-            margin-top: 1rem;
-            margin-bottom: 1rem;
+        }
+        
+        .radio-group-vertical vl-radio {
+            display: block;
+        }
+        
+        .step-inline-results {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e0e0e0;
         }
         
         .question-block {
@@ -181,38 +179,44 @@ export class GezondWizard extends LitElement {
       return html`<p>Loading...</p>`;
     }
 
-    const stepNames = this.config.steps.map(s => s.name);
-
     return html`
       <vl-wizard .activeStep=${this.activeStep} numeric>
         ${this.config.steps.map((step, index) => this._renderStep(step, index))}
       </vl-wizard>
-      
-      <!-- Results section - always visible -->
-      <div class="results-section">
-          ${this._renderAllResults()}
-          
-          <!-- Algemeen advies - always visible -->
-          <div class="advice-section">
-              <vl-title type="h3">${this.config.general.advice.title}</vl-title>
-              <p>${this.config.general.advice.intro}</p>
-              <ul>
-                  ${this.config.general.advice.items.map(item => html`<li>${item}</li>`)}
-              </ul>
-          </div>
-      </div>
     `;
   }
 
   private _renderStep(step: Step, index: number): TemplateResult {
-    if (step.type === 'address-input') {
-      return this._renderAddressStep(step, index);
+    if (step.type === 'intro') {
+      return this._renderIntroStep(step);
+    } else if (step.type === 'address-input') {
+      return this._renderAddressStep(step);
+    } else if (step.type === 'results') {
+      return this._renderResultsStep(step);
     } else {
-      return this._renderQuestionStep(step, index);
+      return this._renderQuestionStep(step);
     }
   }
 
-  private _renderAddressStep(step: Step, index: number): TemplateResult {
+  private _renderIntroStep(step: Step): TemplateResult {
+    return html`
+      <vl-wizard-pane name="${step.name}">
+        <vl-title type="h2">${step.title}</vl-title>
+        <p>${this.config!.general.description}</p>
+        
+        <ul>
+            ${this.config!.general.advice.items.map(item => html`<li>${item}</li>`)}
+        </ul>
+        <p>${this.config!.general.advice.intro}</p>
+        
+        <div class="vl-action-group" style="margin-top: 1.5rem;">
+            <vl-button @click=${this._nextStep}>${step.navigation.next.label}</vl-button>
+        </div>
+      </vl-wizard-pane>
+    `;
+  }
+
+  private _renderAddressStep(step: Step): TemplateResult {
     const isConfirmed = this.confirmedSteps.has(step.id);
     
     return html`
@@ -244,10 +248,16 @@ export class GezondWizard extends LitElement {
                 </div>
                 
                 <div class="button-spacer">
-                    <vl-button @click=${() => this._confirmStep(step)} ?disabled=${!this.coordinates}>Adres opzoeken</vl-button>
+                    <vl-button @click=${() => this._confirmAddressStep(step)} ?disabled=${!this.coordinates}>Adres opzoeken</vl-button>
                 </div>
             </div>
         </div>
+        
+        ${isConfirmed ? html`
+          <div class="step-inline-results">
+            ${this._renderStepResults(step)}
+          </div>
+        ` : ''}
         
         <div class="vl-action-group" style="margin-top: 1rem;">
             ${step.navigation.back ? html`
@@ -261,9 +271,9 @@ export class GezondWizard extends LitElement {
     `;
   }
 
-  private _renderQuestionStep(step: Step, index: number): TemplateResult {
+  private _renderQuestionStep(step: Step): TemplateResult {
     const isConfirmed = this.confirmedSteps.has(step.id);
-    const allQuestionsAnswered = step.questions?.every(q => this.answers[q.id]) ?? false;
+    const allQuestionsAnswered = step.questions?.every(q => this.answers[q.answerId] !== undefined) ?? false;
     
     return html`
       <vl-wizard-pane name="${step.name}">
@@ -274,8 +284,14 @@ export class GezondWizard extends LitElement {
         ${step.questions?.map(question => this._renderQuestion(question))}
         
         <div class="button-spacer">
-            <vl-button @click=${() => this._confirmStep(step)} ?disabled=${!allQuestionsAnswered}>Toon aanbeveling</vl-button>
+            <vl-button @click=${() => this._confirmQuestionStep(step)} ?disabled=${!allQuestionsAnswered}>Toon aanbeveling</vl-button>
         </div>
+        
+        ${isConfirmed ? html`
+          <div class="step-inline-results">
+            ${this._renderStepResults(step)}
+          </div>
+        ` : ''}
         
         <div class="vl-action-group" style="margin-top: 1.5rem;">
             ${step.navigation.back ? html`
@@ -287,7 +303,43 @@ export class GezondWizard extends LitElement {
     `;
   }
 
-  private _renderQuestion(question: Question): TemplateResult {
+  private _renderResultsStep(step: Step): TemplateResult {
+    return html`
+      <vl-wizard-pane name="${step.name}">
+        <vl-title type="h2">${step.title}</vl-title>
+        <p>${step.description || 'Overzicht van alle aanbevelingen op basis van je antwoorden.'}</p>
+        
+        ${this._renderAllStepsResults()}
+        
+        <div class="vl-action-group" style="margin-top: 1.5rem;">
+            ${step.navigation.back ? html`
+                <vl-button secondary @click=${this._prevStep}>${step.navigation.back.label}</vl-button>
+            ` : ''}
+        </div>
+      </vl-wizard-pane>
+    `;
+  }
+
+  private _renderStepResults(step: Step): TemplateResult {
+    if (!this.config) return html``;
+    
+    // Get answer IDs relevant to this step
+    const relevantAnswerIds = this._getRelevantAnswerIds(step);
+    
+    // Get rules that involve these answers
+    const relevantRules = getRulesForAnswers(this.config.rules, relevantAnswerIds);
+    
+    // Evaluate rules to get matching results
+    const matchedResults = evaluateRules(relevantRules, this.config.results, this.answers);
+    
+    if (matchedResults.length === 0) return html``;
+    
+    return html`
+      ${matchedResults.map(result => this._renderResult(result))}
+    `;
+  }
+
+  private _renderQuestion(question: StepQuestion): TemplateResult {
     return html`
       <div class="question-block">
         ${question.title ? html`<p class="question-title">${question.title}</p>` : ''}
@@ -295,8 +347,7 @@ export class GezondWizard extends LitElement {
         
         <div class="radio-group-vertical">
           <vl-radio-group 
-            .value=${this.answers[question.id] || ''} 
-            @vl-input=${(e: any) => this._handleAnswer(question.id, e.target.value)}
+            @vl-input=${(e: any) => this._handleAnswer(question.answerId, e.target.value)}
           >
             ${question.options.map(option => html`
               <vl-radio value="${option.value}">${option.label}</vl-radio>
@@ -307,71 +358,50 @@ export class GezondWizard extends LitElement {
     `;
   }
 
-  private _renderAllResults(): TemplateResult {
-    const results: TemplateResult[] = [];
+  private _renderAllStepsResults(): TemplateResult {
+    if (!this.config || this.confirmedSteps.size === 0) {
+      return html``;
+    }
+
+    const resultBlocks: TemplateResult[] = [];
     
     // Render in reverse order (newest on top)
-    const reversedSteps = [...this.config!.steps].reverse();
+    const reversedSteps = [...this.config.steps].reverse();
     
     for (const step of reversedSteps) {
       if (!this.confirmedSteps.has(step.id)) continue;
+      if (!step.resultsTitle) continue;
       
-      if (step.type === 'address-input') {
-        results.push(this._renderAddressResults(step));
-      } else if (step.questions) {
-        results.push(this._renderQuestionResults(step));
+      // Get answer IDs relevant to this step
+      const relevantAnswerIds = this._getRelevantAnswerIds(step);
+      
+      // Get rules that involve these answers
+      const relevantRules = getRulesForAnswers(this.config.rules, relevantAnswerIds);
+      
+      // Evaluate rules to get matching results
+      const matchedResults = evaluateRules(relevantRules, this.config.results, this.answers);
+      
+      if (matchedResults.length > 0) {
+        resultBlocks.push(html`
+          <div class="step-results">
+            <vl-title type="h3">${step.resultsTitle}</vl-title>
+            ${step.type === 'address-input' ? html`<p class="address-subtitle">${this.address}</p>` : ''}
+            ${matchedResults.map(result => this._renderResult(result))}
+          </div>
+        `);
       }
     }
     
-    return html`${results}`;
+    return html`${resultBlocks}`;
   }
 
-  private _renderAddressResults(step: Step): TemplateResult {
-    if (!step.triggersChecks) return html``;
-    
-    const alerts: TemplateResult[] = [];
-    
-    // Find address checks in config
-    for (const checkId of step.triggersChecks) {
-      const checkConfig = this.config!.addressChecks.find(c => c.id === checkId);
-      if (!checkConfig) continue;
-      
-      const checkValue = this.checkResults[checkId] ?? false;
-      const result = checkValue ? checkConfig.results.true : checkConfig.results.false;
-      
-      alerts.push(this._renderResult(result));
+  private _getRelevantAnswerIds(step: Step): string[] {
+    if (step.type === 'address-input' && step.triggersAnswers) {
+      return step.triggersAnswers;
+    } else if (step.questions) {
+      return step.questions.map(q => q.answerId);
     }
-    
-    return html`
-      <div class="step-results">
-        <vl-title type="h3">${step.resultsTitle}</vl-title>
-        <p class="address-subtitle">${this.address}</p>
-        ${alerts}
-      </div>
-    `;
-  }
-
-  private _renderQuestionResults(step: Step): TemplateResult {
-    if (!step.questions) return html``;
-    
-    const alerts: TemplateResult[] = [];
-    
-    for (const question of step.questions) {
-      const answer = this.answers[question.id];
-      if (!answer) continue;
-      
-      const option = question.options.find(o => o.value === answer);
-      if (!option) continue;
-      
-      alerts.push(this._renderResult(option.result));
-    }
-    
-    return html`
-      <div class="step-results">
-        <vl-title type="h3">${step.resultsTitle}</vl-title>
-        ${alerts}
-      </div>
-    `;
+    return [];
   }
 
   private _renderResult(result: Result): TemplateResult {
@@ -427,41 +457,47 @@ export class GezondWizard extends LitElement {
     this.suggestions = [];
   }
 
-  private _handleAnswer(questionId: string, value: string) {
-    this.answers = { ...this.answers, [questionId]: value };
+  private _handleAnswer(answerId: string, value: string) {
+    // Parse boolean values from string
+    let parsedValue: string | boolean = value;
+    if (value === 'true') parsedValue = true;
+    if (value === 'false') parsedValue = false;
+    
+    this.answers = { ...this.answers, [answerId]: parsedValue };
   }
 
-  private async _confirmStep(step: Step) {
-    if (step.type === 'address-input') {
-      // Simulate address checks (in real app, call APIs)
-      await this._performAddressChecks(step);
-    }
-    
+  private async _confirmAddressStep(step: Step) {
+    // Perform address checks and set computed answers
+    await this._performAddressChecks(step);
+    this.confirmedSteps = new Set([...this.confirmedSteps, step.id]);
+  }
+
+  private _confirmQuestionStep(step: Step) {
     this.confirmedSteps = new Set([...this.confirmedSteps, step.id]);
   }
 
   private async _performAddressChecks(step: Step) {
-    // Load mock results (in real app, call actual GIS services)
+    // Load mock results (in real app, call actual WFS services based on config)
     try {
       const response = await fetch('/mock-config.json');
-      const config = await response.json();
+      const mockData = await response.json();
       
-      this.checkResults = {
-        contamination: config.checks?.contamination ?? false,
-        waterloop: config.checks?.waterloop ?? false,
-        busyRoad: config.checks?.busyRoad ?? false,
-        pfasFireStation: config.checks?.pfasFireStation ?? false,
-        industrial: config.checks?.industrial ?? false
-      };
+      // Set computed answers from mock data
+      if (step.triggersAnswers) {
+        for (const answerId of step.triggersAnswers) {
+          this.answers = { 
+            ...this.answers, 
+            [answerId]: mockData.checks?.[answerId] ?? false 
+          };
+        }
+      }
     } catch (e) {
       // Default to all false if config not found
-      this.checkResults = {
-        contamination: false,
-        waterloop: false,
-        busyRoad: false,
-        pfasFireStation: false,
-        industrial: false
-      };
+      if (step.triggersAnswers) {
+        for (const answerId of step.triggersAnswers) {
+          this.answers = { ...this.answers, [answerId]: false };
+        }
+      }
     }
   }
 
@@ -477,7 +513,6 @@ export class GezondWizard extends LitElement {
     this.activeStep = 1;
     this.address = '';
     this.coordinates = null;
-    this.checkResults = {};
     this.answers = {};
     this.confirmedSteps = new Set();
   }
