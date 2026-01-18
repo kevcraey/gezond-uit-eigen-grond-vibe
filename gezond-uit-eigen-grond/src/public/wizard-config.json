@@ -82,13 +82,13 @@
   "results": {
     "dicht_bij_waterloop": {
       "title": "Waterloop langs perceel",
-      "description": "Je tuin ligt langs een waterloop. Vermijd het inrichten van een moestuin in de <strong>5-meter zone</strong>.",
+      "description": "Jen hof ligt langs een waterloop. Vermijd het inrichten van een moestuin in de <strong>5-meter zone</strong>.",
       "type": "warning",
       "important": false
     },
     "niet_dicht_bij_waterloop": {
       "title": "Waterloop langs perceel",
-      "description": "Geen waterloop binnen 5m van je perceel.",
+      "description": "Geen waterloop binnen 5m van uw kiekens.",
       "type": "success",
       "important": false
     },

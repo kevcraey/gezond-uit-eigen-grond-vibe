@@ -14,8 +14,10 @@ import {
   VlMapDrawPolygonAction,
   VlMapLayerStyle,
   VlMapActionControls,
-  VlMapActionControl
+  VlMapActionControl,
+  VlMapModifyAction
 } from '@domg-wc/map';
+import { VlModalComponent } from '@domg-wc/components/block/modal';
 import { vlContentBlockStyles, vlGridStyles, vlGroupStyles } from '@domg-wc/styles';
 import { LitElement, TemplateResult, css, html, nothing } from 'lit';
 import { customElement, state, query } from 'lit/decorators.js';
@@ -48,7 +50,8 @@ registerWebComponents([
   VlMapDrawPolygonAction,
   VlMapLayerStyle,
   VlMapActionControls,
-  VlMapActionControl
+  VlMapActionControl,
+  VlMapModifyAction
 ]);
 
 @customElement('gezond-wizard')
@@ -71,7 +74,10 @@ export class GezondWizard extends LitElement {
   @state() private confirmedSteps: Set<string> = new Set();
   
   // Drawn polygon for vegetable garden location
+  // Drawn polygon for vegetable garden location
   @state() private drawnPolygon: any = null;
+  @state() private showDeleteModal: boolean = false;
+  @state() private isEditing: boolean = false;
   
   // Reference to map element
   @query('vl-map') private mapElement: any;
@@ -263,14 +269,25 @@ export class GezondWizard extends LitElement {
           <vl-map>
             <vl-map-baselayer-grb-gray></vl-map-baselayer-grb-gray>
             <vl-map-search></vl-map-search>
-            <vl-map-action-controls>
-              <vl-map-action-control 
-                action-id="draw-polygon-action" 
-                icon="pencil" 
-                label="Teken moestuin"
-                default-active>
-              </vl-map-action-control>
-            </vl-map-action-controls>
+            <!-- Custom Controls overlay on map -->
+             <div style="position: absolute; top: 10px; right: 10px; z-index: 10; display: flex; gap: 10px;">
+               <vl-button 
+                  id="btn-modify"
+                  icon="pencil" 
+                  @click=${this._toggleEditMode} 
+                  ?disabled=${!hasPolygon || this.showDeleteModal}>
+                  ${this.isEditing ? 'Klaar met aanpassen' : 'Aanpassen'}
+               </vl-button>
+               <vl-button 
+                  id="btn-delete"
+                  error 
+                  icon="trash" 
+                  @click=${this._requestDeletePolygon} 
+                  ?disabled=${!hasPolygon || this.isEditing}>
+                  Verwijder
+               </vl-button>
+             </div>
+
             <vl-map-features-layer name="polygon-layer">
               <vl-map-layer-style 
                 border-color="rgba(0, 85, 204, 1)" 
@@ -278,11 +295,30 @@ export class GezondWizard extends LitElement {
                 color="rgba(0, 85, 204, 0.3)">
               </vl-map-layer-style>
               <vl-map-draw-polygon-action 
-                id="draw-polygon-action">
+                id="draw-polygon-action"
+                .active=${!this.isEditing}>
               </vl-map-draw-polygon-action>
+              <vl-map-modify-action
+                id="modify-polygon-action"
+                .active=${this.isEditing}>
+              </vl-map-modify-action>
             </vl-map-features-layer>
           </vl-map>
         </div>
+
+        <vl-modal
+          id="delete-confirmation-modal"
+          title="Bent u zeker?"
+          ?open=${this.showDeleteModal}
+          @close=${this._cancelDeletePolygon}
+          not-cancellable
+        >
+          <p slot="content">Alles wat u getekend heb zal verwijderd worden.</p>
+          <div slot="button">
+            <vl-button secondary @click=${this._cancelDeletePolygon}>Annuleer</vl-button>
+            <vl-button @click=${this._confirmDeletePolygon}>OK</vl-button>
+          </div>
+        </vl-modal>
         
         ${hasPolygon ? html`
           <p style="color: green;">✓ Je moestuin is ingetekend op de kaart.</p>
@@ -595,5 +631,40 @@ export class GezondWizard extends LitElement {
     this.coordinates = null;
     this.answers = {};
     this.confirmedSteps = new Set();
+  }
+
+  private _setEditMode(isEditing: boolean) {
+    this.isEditing = isEditing;
+  }
+
+  private _toggleEditMode() {
+    this.isEditing = !this.isEditing;
+  }
+
+  private _requestDeletePolygon() {
+    this.showDeleteModal = true;
+  }
+
+  private _cancelDeletePolygon() {
+    this.showDeleteModal = false;
+  }
+
+  private _confirmDeletePolygon() {
+    this.drawnPolygon = null;
+    this.coordinates = null;
+    this.address = '';
+    
+    // Clear the map layer (accessing layer directly via querySelector)
+    this._clearPolygonFromLayer();
+    
+    this.showDeleteModal = false;
+    this.isEditing = false;
+  }
+  
+  private _clearPolygonFromLayer() {
+     const featuresLayer = this.shadowRoot?.querySelector('vl-map-features-layer[name="polygon-layer"]') as any;
+     if (featuresLayer && featuresLayer.layer) {
+       featuresLayer.layer.getSource().clear();
+     }
   }
 }
