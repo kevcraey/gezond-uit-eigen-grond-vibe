@@ -87,6 +87,10 @@ module.exports = (env, argv) => {
             from: 'src/public/mock-config.json',
             to: 'mock-config.json',
           },
+          {
+            from: 'src/public/wizard-config.json',
+            to: 'wizard-config.json',
+          },
         ],
       }),
       new MiniCssExtractPlugin(),

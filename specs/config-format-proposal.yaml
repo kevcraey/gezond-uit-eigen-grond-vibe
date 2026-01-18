@@ -1,0 +1,375 @@
+# Gezond Grond Tool - Configuration Format v2.1
+# ==============================================
+
+version: "2.1"
+
+# =============================================================================
+# RESULTAAT MODEL
+# =============================================================================
+# Elk resultaat (feedback) volgt dit vaste formaat:
+#
+# result:
+#   title: string              # Titel van de alert
+#   description: string        # Omschrijving (HTML toegestaan)
+#   button:                    # Optioneel
+#     caption: string          # Knop tekst
+#     link: string             # URL of route
+#   type: success|warning|error   # Kleur: groen/oranje/rood
+#   important: boolean         # true = normale alert, false = naked alert
+#
+# HTML in description:
+#   - <strong>, <em> voor nadruk
+#   - <ul><li> voor lijsten
+#   - <a href="..."> voor links
+#   - <br> voor line breaks
+#
+# =============================================================================
+
+# =============================================================================
+# ALGEMENE INSTELLINGEN
+# =============================================================================
+general:
+  title: "Gezond uit eigen grond"
+  description: "Ontdek hier hoe een gezonde moestuin of kippenren eruitziet!"
+  
+  advice:
+    title: "Algemeen advies"
+    intro: "Met onze uitgebreidere checks kan je ook onderzoeken of er potentiële verontreinigingsbronnen in je tuin aanwezig zijn, of laat een bodemanalyse uitvoeren."
+    items:
+      - "Kies een goede locatie voor je moestuin, fruitplanten of kippenren."
+      - "De meeste verontreinigende stoffen uit een bodem nemen we op via bodemdeeltjes, was dus steeds zorgvuldig je handen, groenten en fruit."
+      - "Vermijd steeds het gebruik van pesticiden."
+      - "Gebruik bij voorkeur regenwater voor de planten in de tuin."
+      - "Breng variatie in je voedsel en kies voor gezonde tuinmaterialen."
+      - "Vermijd het stoken in de tuin en gebruik je kachel verstandig."
+
+# =============================================================================
+# ADRES-GEBASEERDE CHECKS
+# =============================================================================
+addressChecks:
+  - id: "contamination"
+    name: "Verontreinigd perceel"
+    source: "ovam-databank"
+    results:
+      true:
+        title: "Bodemverontreinigingslocatie gevonden"
+        description: |
+          Er zijn al gegevens over een <strong>bodemverontreinigingslocatie</strong> gevonden. 
+          Bent u de eigenaar van dit perceel? Meld u aan bij de <a href="https://www.ovam.be">OVAM</a> om dit te bekijken.
+        button:
+          caption: "Vraag je bodemstalen aan"
+          link: "/bodemstalen"
+        type: "error"
+        important: true
+      false:
+        title: "Verontreinigd perceel"
+        description: "Neen - Er is geen verontreiniging gekend voor dit perceel in de VL databank."
+        type: "success"
+        important: false
+
+  - id: "waterloop"
+    name: "Waterloop langs perceel"
+    source: "gis-waterloop"
+    results:
+      true:
+        title: "Waterloop langs perceel en/of in fluviaal overstromingsgebied"
+        description: |
+          Je tuin ligt langs een waterloop. Vermijd het inrichten van een moestuin, fruitplanten of kippenren 
+          in de <strong>5-meter zone</strong> langs de waterloop.<br><br>
+          In deze zone kan geruimd materiaal uit de waterloop zijn gedeponeerd, wat kan zorgen voor 
+          verhoogde gehaltes aan verontreinigende stoffen.
+        type: "warning"
+        important: false
+      false:
+        title: "Waterloop langs perceel"
+        description: "Neen - Geen waterloop binnen 5m van je perceel."
+        type: "success"
+        important: false
+
+  - id: "busyRoad"
+    name: "Drukke weg of spoorweg"
+    source: "gis-roads"
+    results:
+      true:
+        title: "Ligt je terrein naast een drukke weg of spoorweg?"
+        description: |
+          Ja - Laat minstens <strong>30 meter afstand</strong> tussen je groentetuin en de auto- of spoorweg. 
+          Leg tussenin een fysieke barrière aan, zoals een struikengordel met inheemse planten.
+        type: "warning"
+        important: false
+      false:
+        title: "Ligt je terrein naast een drukke weg of spoorweg?"
+        description: "Neen - Geen drukke wegen of spoorwegen in de nabijheid."
+        type: "success"
+        important: false
+
+  - id: "pfasFireStation"
+    name: "PFAS no-regret zone"
+    source: "gis-pfas"
+    results:
+      true:
+        title: "PFAS no-regret zone"
+        description: |
+          Ja - Je grond ligt in de nabijheid van een brandweeroefenterrein of PFAS no-regret zone. 
+          Overweeg een <a href="/bodemanalyse">bodemanalyse voor PFAS-stoffen</a>.
+        type: "warning"
+        important: false
+      false:
+        title: "PFAS no-regret zone"
+        description: "Neen - Geen PFAS-risico in dit gebied."
+        type: "success"
+        important: false
+
+  - id: "industrial"
+    name: "Industriële activiteiten"
+    source: "gis-industrial"
+    results:
+      true:
+        title: "Industriële activiteiten"
+        description: "Ja - Er zijn industriële activiteiten in de omgeving die mogelijk bodemverontreiniging kunnen veroorzaken."
+        type: "warning"
+        important: false
+      false:
+        title: "Industriële activiteiten"
+        description: "Neen - Er zijn geen industriële activiteiten in de nabijheid gevonden."
+        type: "success"
+        important: false
+
+# =============================================================================
+# WIZARD STAPPEN MET VRAGEN
+# =============================================================================
+steps:
+  # ---------------------------------------------------------------------------
+  # STAP 1: Adres
+  # ---------------------------------------------------------------------------
+  - id: "address"
+    name: "Adres"
+    title: "Geef je adres in"
+    description: "Onderzoek of er potentiële risico's zijn op je perceel"
+    type: "address-input"
+    triggersChecks: ["contamination", "waterloop", "busyRoad", "pfasFireStation", "industrial"]
+    resultsTitle: "Aanbeveling op basis van je adres"
+    navigation:
+      back: null
+      next:
+        label: "Volgende stap: Bodemvreemde materialen"
+        requiresConfirmation: true
+
+  # ---------------------------------------------------------------------------
+  # STAP 2: Bodemvreemde materialen
+  # ---------------------------------------------------------------------------
+  - id: "materials"
+    name: "Materialen"
+    title: "Bodemvreemde materialen"
+    description: "Zijn er bodemvreemde materialen aanwezig in de bovenste 30 cm van uw bodem?"
+    helpText: "Let op: kiezels, as, stukjes baksteen, betonresten, asbest, schroot, plastic, glas, enz."
+    helpLink:
+      label: "Hoe herken je bodemvreemde materialen in je tuin?"
+      url: "/help/materialen"
+    type: "question"
+    resultsTitle: "Aanbeveling op basis van bodemvreemde materialen"
+    
+    questions:
+      - id: "materialsPresent"
+        type: "radio"
+        layout: "vertical"
+        options:
+          - value: "geen"
+            label: "Geen van onderstaande"
+            result:
+              title: "Bodemvreemde materialen"
+              description: "Geen risico - Geen bodemvreemde materialen aangetroffen."
+              type: "success"
+              important: false
+              
+          - value: "beperkt"
+            label: "Beperkte hoeveelheid (baksteenresten, betonbrokken, tegelresten, schroot, plastic, glas,…)"
+            result:
+              title: "Bodemvreemde materialen"
+              description: "Laag risico - Verwijder indien mogelijk de zichtbare bodemvreemde materialen uit je tuin."
+              type: "warning"
+              important: false
+              
+          - value: "assen"
+            label: "Assen (PAK, ZM)"
+            result:
+              title: "Bodemvreemde materialen - Assen"
+              description: |
+                Matig risico - Assen kunnen <strong>PAK en zware metalen</strong> bevatten. 
+                Overweeg een <a href="/bodemanalyse">bodemanalyse</a> om het gehalte aan zware metalen en PAK te controleren.
+              type: "warning"
+              important: false
+              
+          - value: "asbest"
+            label: "Asbestresten/asbesthoudende materialen"
+            result:
+              title: "Bodemvreemde materialen - Asbest"
+              description: |
+                <strong>Hoog risico</strong> - Asbestresten zijn aangetroffen.
+                <ul>
+                  <li>Vermijd contact met deze materialen</li>
+                  <li>Overweeg professionele verwijdering</li>
+                </ul>
+              button:
+                caption: "Contacteer een gespecialiseerde firma"
+                link: "/asbest-verwijdering"
+              type: "error"
+              important: true
+              
+          - value: "veel"
+            label: "Veel aangetroffen"
+            result:
+              title: "Bodemvreemde materialen"
+              description: |
+                <strong>Hoog risico</strong> - Veel bodemvreemd materiaal aangetroffen. 
+                Overweeg een grondige reiniging of vervanging van de toplaag door schone teelaarde.
+              type: "error"
+              important: true
+
+    navigation:
+      back: { label: "Terug" }
+      next: { label: "Volgende stap: Asbest", requiresConfirmation: true }
+
+  # ---------------------------------------------------------------------------
+  # STAP 3: Asbest
+  # ---------------------------------------------------------------------------
+  - id: "asbest"
+    name: "Asbest"
+    title: "Asbest"
+    description: "Zijn er asbesthoudende daken of wanden waarvan het water afloopt naar je moestuin of kippenren? Zijn er asbesthoudende bloembakken/tuinmateriaal aanwezig?"
+    helpLink:
+      label: "Hoe kan ik asbest herkennen?"
+      url: "/help/asbest"
+    type: "question"
+    resultsTitle: "Aanbeveling op basis van asbest"
+    
+    questions:
+      - id: "asbestPresent"
+        type: "radio"
+        layout: "vertical"
+        options:
+          - value: "nee"
+            label: "Neen"
+            result:
+              title: "Asbest"
+              description: "Geen risico - Geen asbesthoudend materiaal aanwezig."
+              type: "success"
+              important: false
+              
+          - value: "ja"
+            label: "Ja"
+            result:
+              title: "Asbest"
+              description: |
+                <strong>Hoog risico</strong> - Er is asbesthoudend materiaal aanwezig in je tuin. 
+                Asbesthoudend materiaal kan degraderen en losse asbestvezels vrijgeven. 
+                Deze zijn <strong>zeer schadelijk voor de gezondheid</strong>.
+                <ul>
+                  <li>Vermijd het om deze zones te betreden</li>
+                  <li>Verwijder indien mogelijk het asbesthoudend materiaal via een gespecialiseerde firma</li>
+                  <li>Overweeg om de toplaag af te graven en te vervangen door schone teelaarde</li>
+                </ul>
+              button:
+                caption: "Contacteer een gespecialiseerde firma"
+                link: "/asbest-verwijdering"
+              type: "error"
+              important: true
+
+    navigation:
+      back: { label: "Terug" }
+      next: { label: "Volgende stap: Bodemverontreiniging", requiresConfirmation: true }
+
+  # ---------------------------------------------------------------------------
+  # STAP 4: Bodemverontreiniging
+  # ---------------------------------------------------------------------------
+  - id: "pollution"
+    name: "Verontreiniging"
+    title: "Bodemverontreiniging"
+    description: "Optionele bijkomende check: heb je weet van activiteiten die bodemverontreiniging kunnen veroorzaken?"
+    type: "question"
+    resultsTitle: "Aanbeveling op basis van bodemverontreiniging"
+    
+    questions:
+      - id: "pollutionOil"
+        title: "Opslagtanks / oliegeur?"
+        description: "Heb je weet van opslagtanks (bvb voor stookolie), morsen van smeermiddelen, of merk je een oliegeur op?"
+        type: "radio"
+        layout: "vertical"
+        options:
+          - value: "nee"
+            label: "Neen"
+            result:
+              title: "Opslagtanks / oliegeur"
+              description: "Geen risico - Geen opslagtanks of oliegeur aanwezig."
+              type: "success"
+              important: false
+              
+          - value: "ja"
+            label: "Ja"
+            result:
+              title: "Opslagtanks / oliegeur"
+              description: |
+                <strong>Hoog risico</strong> - Merk je een oliegeur op?
+                <ul>
+                  <li>Kies een andere plek voor je moestuin of kippenren op minstens <strong>10 meter</strong> van de opslagtank of geurwaarneming</li>
+                  <li>Contacteer de <a href="https://www.ovam.be">OVAM</a> of een eBSD voor verder onderzoek</li>
+                  <li>Overweeg de verontreinigde grond te verwijderen</li>
+                </ul>
+              button:
+                caption: "Contacteer OVAM"
+                link: "https://www.ovam.be"
+              type: "error"
+              important: true
+
+      - id: "pollutionBurning"
+        title: "Verbranden van afval, stoken, kachels?"
+        description: "Heb je weet van verbranden van afval, regelmatig stoken, of werden assen uitgespreid over de tuin?"
+        type: "radio"
+        layout: "vertical"
+        options:
+          - value: "nee"
+            label: "Neen"
+            result:
+              title: "Verbranden / stoken"
+              description: "Geen risico - Geen verbranding of stoken bekend."
+              type: "success"
+              important: false
+              
+          - value: "ja"
+            label: "Ja"
+            result:
+              title: "Verbranden / stoken"
+              description: |
+                Matig risico - Assen kunnen <strong>PAK en zware metalen</strong> bevatten. 
+                Vermijd het uitspreiden van assen in je moestuin of kippenren. 
+                Overweeg een <a href="/bodemanalyse">bodemanalyse</a>.
+              type: "warning"
+              important: false
+
+      - id: "pollutionPesticides"
+        title: "Pesticiden?"
+        description: "Heb je weet van het gebruik van pesticiden op je perceel?"
+        type: "radio"
+        layout: "vertical"
+        options:
+          - value: "nee"
+            label: "Neen"
+            result:
+              title: "Pesticiden"
+              description: "Geen risico - Geen pesticidengebruik bekend."
+              type: "success"
+              important: false
+              
+          - value: "ja"
+            label: "Ja"
+            result:
+              title: "Pesticiden"
+              description: |
+                Matig risico - Er zijn pesticiden gebruikt op dit perceel. 
+                Overweeg een <a href="/bodemanalyse">bodemanalyse</a> om de aanwezigheid van pesticiden te controleren.
+              type: "warning"
+              important: false
+
+    navigation:
+      back: { label: "Terug" }
+      next: { label: "Klaar", requiresConfirmation: true }
