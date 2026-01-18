@@ -269,7 +269,7 @@ export class GezondWizard extends LitElement {
         <p>${step.description}</p>
         <p><strong>Zoek eerst je adres</strong> via de zoekbalk, en <strong>teken daarna</strong> de exacte locatie van je moestuin of kippenren door een polygoon te tekenen op de kaart.</p>
         
-        <div class="map-container" style="height: 400px; margin: 1rem 0;">
+        <div class="map-container" style="height: 400px; margin: 1rem 0; position: relative;">
           <vl-map>
             <vl-map-baselayer-grb-gray></vl-map-baselayer-grb-gray>
             <vl-map-search></vl-map-search>
@@ -591,39 +591,111 @@ export class GezondWizard extends LitElement {
   }
 
   private async _performAddressChecks(step: Step) {
-    // In a real application, we would use the polygon geometry or coordinates
-    // for WFS queries. 
-    console.log('Performing checks for location:', this.coordinates);
-    if (this.drawnPolygon) {
-         // Log the geometry to demonstrate we have access to it for WFS queries
-         console.log('Using polygon geometry for WFS checks:', this.drawnPolygon.getGeometry());
-    }
+    if (!this.config || !this.drawnPolygon) return;
+    
+    // Get WKT from polygon for spatial query
+    const wkt = this._extractWkt(this.drawnPolygon);
+    
+    console.log('Using WKT for WFS:', wkt);
 
-    // Load mock results (in real app, call actual WFS services based on config)
+    // Filter computed answers that are triggered by this step
+    const computedAnswers = this.config.answers.filter(a => 
+      a.type === 'computed' && 
+      step.triggersAnswers?.includes(a.id)
+    );
+
+    // Process checks in parallel
+    const updates = await Promise.all(computedAnswers.map(async (answer) => {
+      try {
+        if (!answer.source || answer.source.type !== 'wfs') return { id: answer.id, value: false };
+        
+        // Use user-provided override URL and layer for now
+        // "Voorlopig kan je voor elk van de checks deze WFS gebruiken: ...layers=ps:ps_hbtrl"
+        const wfsUrl = 'https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/ows';
+        const typeName = 'ps:ps_hbtrl'; // Using the layer specified by user
+        const buffer = answer.source.buffer || 0;
+        
+        const hasOverlap = await this._checkWfsOverlap(wfsUrl, typeName, wkt, buffer);
+        console.log(`Check ${answer.id} (buffer: ${buffer}m): ${hasOverlap}`);
+        
+        return { id: answer.id, value: hasOverlap };
+      } catch (e) {
+        console.error(`Error checking ${answer.id}:`, e);
+        return { id: answer.id, value: false };
+      }
+    }));
+
+    // Update state
+    const newAnswers = { ...this.answers };
+    updates.forEach(u => newAnswers[u.id] = u.value);
+    this.answers = newAnswers;
+  }
+
+  private async _checkWfsOverlap(url: string, typeName: string, wkt: string, buffer: number = 0): Promise<boolean> {
+    const params = new URLSearchParams({
+      service: 'WFS',
+      version: '2.0.0', // Switch back to 2.0.0 as it aligns better with modern defaults and JSON
+      request: 'GetFeature',
+      typeNames: typeName,
+      outputFormat: 'application/json',
+      count: '1'
+    });
+
+    // Construct CQL filter
+    // Error received: Illegal property name: SHAPE
+    // Trying 'geom' which is common for OGC/PostGIS services.
+    const geomCol = 'geom'; 
+    
+    let cqlFilter = '';
+    
+    if (buffer > 0) {
+      cqlFilter = `DWITHIN(${geomCol}, ${wkt}, ${buffer}, meters)`;
+    } else {
+      cqlFilter = `INTERSECTS(${geomCol}, ${wkt})`;
+    }
+    
+    params.append('cql_filter', cqlFilter);
+
     try {
-      // Simulate network delay to make it feel more real
-      await new Promise(resolve => setTimeout(resolve, 500));
-
-      const response = await fetch('/mock-config.json');
-      const mockData = await response.json();
+      const fullUrl = `${url}?${params.toString()}`;
+      console.log('Fetching WFS:', fullUrl);
       
-      // Set computed answers from mock data
-      if (step.triggersAnswers) {
-        for (const answerId of step.triggersAnswers) {
-          this.answers = { 
-            ...this.answers, 
-            [answerId]: mockData.checks?.[answerId] ?? false 
-          };
-        }
+      const response = await fetch(fullUrl);
+      const text = await response.text();
+      
+      if (!response.ok) {
+        throw new Error(`WFS Error ${response.status}: ${text}`);
       }
+      
+      // Check if response is XML (ServiceException)
+      if (text.trim().startsWith('<')) {
+        console.error('WFS returned XML instead of JSON. Likely an error:', text);
+        // Try to extract exception text for clearer logging
+        return false;
+      }
+      
+      const data = JSON.parse(text);
+      return (data.numberMatched > 0 || (data.features && data.features.length > 0));
     } catch (e) {
-      // Default to all false if config not found
-      if (step.triggersAnswers) {
-        for (const answerId of step.triggersAnswers) {
-          this.answers = { ...this.answers, [answerId]: false };
-        }
-      }
+      console.error('WFS check failed:', e);
+      return false;
     }
+  }
+
+  private _extractWkt(feature: any): string {
+     // Simple WKT writer for Polygon
+     if (!feature) return '';
+     const geometry = feature.getGeometry();
+     if (!geometry) return '';
+     
+     // Assumes Polygon. coordinates is [ [ [x,y]... ] ] (array of rings)
+     const coords = geometry.getCoordinates(); 
+     
+     const rings = coords.map((ring: any[]) => {
+       return '(' + ring.map(c => `${c[0]} ${c[1]}`).join(', ') + ')';
+     }).join(', ');
+     
+     return `POLYGON(${rings})`;
   }
 
   private _nextStep() {
