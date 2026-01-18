@@ -1,5 +1,7 @@
 
 import { registerWebComponents } from '@domg-wc/common';
+import { spatialService } from '../services/spatial.service';
+import { wizardStyles } from './gezond-wizard.css';
 import { VlButtonComponent, VlTitleComponent } from '@domg-wc/components/atom';
 import { VlWizard, VlWizardPane } from '@domg-wc/components/block/wizard';
 import { VlAlert } from '@domg-wc/components/block/alert';
@@ -89,134 +91,10 @@ export class GezondWizard extends LitElement {
       vlContentBlockStyles,
       vlGridStyles,
       vlGroupStyles,
-      css`
-        :host { display: block; }
-        .wizard-content { margin-top: 2rem; }
-        
-        .suggestions-list {
-            position: absolute;
-            z-index: 1000;
-            background: white;
-            border: 1px solid #ccc;
-            width: 100%;
-            max-height: 200px;
-            overflow-y: auto;
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            margin-top: 2px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        
-        .suggestion-item {
-            padding: 10px;
-            cursor: pointer;
-            border-bottom: 1px solid #eee;
-        }
-        
-        .suggestion-item:hover {
-            background: #f0f0f0;
-        }
-        
-        .address-input-wrapper {
-            position: relative;
-        }
-        
-        .button-spacer {
-            margin-top: 1.5rem;
-        }
-        
-        .alert-spacer {
-            margin-bottom: 1rem;
-        }
-        
-        .results-section {
-            margin-top: 3rem;
-        }
-        
-        .step-results {
-            margin-bottom: 2rem;
-            padding-bottom: 1.5rem;
-            border-bottom: 1px solid #e0e0e0;
-        }
-        
-        .step-results > vl-title {
-            margin-bottom: 0.25rem;
-        }
-        
-        .address-subtitle {
-            color: #666;
-            font-style: italic;
-            margin-bottom: 1rem;
-        }
-        
-        .radio-group-vertical {
-            margin-top: 1rem;
-            margin-bottom: 1rem;
-        }
-        
-        .radio-group-vertical vl-radio-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-        
-        .radio-group-vertical vl-radio {
-            display: block;
-        }
-        
-        .step-inline-results {
-            margin-top: 2rem;
-            padding-top: 1rem;
-            border-top: 1px solid #e0e0e0;
-            position: relative;
-            z-index: 5;
-            background-color: white;
-            clear: both;
-        }
-        
-        .question-block {
-            margin-bottom: 1.5rem;
-        }
-        
-        .question-title {
-            font-weight: 600;
-            margin-bottom: 0.25rem;
-        }
-
-        .map-container {
-            height: 400px; 
-            margin: 1rem 0; 
-            position: relative;
-            overflow: hidden; /* Fixes map overflow */
-        }
-
-        vl-map {
-            width: 100%;
-            height: 100%;
-            display: block;
-        }
-
-        .action-group-container {
-            margin-top: 1rem;
-            position: relative;
-            z-index: 10;
-            background: white; /* Ensure it covers anything behind */
-            clear: both;
-        }
-        
-        .question-description {
-            color: #666;
-            margin-bottom: 0.5rem;
-        }
-
-        .alert-action-button::part(button) {
-            background-color: white !important;
-            /* Ensure text contrast if needed */
-        }
-      `
+      wizardStyles
     ];
   }
+
 
   async connectedCallback() {
     super.connectedCallback();
@@ -611,19 +489,18 @@ export class GezondWizard extends LitElement {
           await this._confirmAddressStep(addressStep);
         }
         
-        // Resolve address using Geolocation API
+        // Resolve address using SpatialService
         try {
           this.address = `Locatie bepalen...`;
-          const response = await fetch(`https://geo.api.vlaanderen.be/geolocation/v4/Location?xy=${centerX},${centerY}`);
-          const data = await response.json();
-
-          if (data && data.LocationResult && data.LocationResult.length > 0) {
-            this.address = data.LocationResult[0].FormattedAddress;
+          const address = await spatialService.reverseGeocode(centerX, centerY);
+          
+          if (address) {
+            this.address = address;
           } else {
             this.address = `Locatie: ${centerX.toFixed(2)}, ${centerY.toFixed(2)}`;
           }
         } catch (e) {
-          console.error('Error fetching location address:', e);
+          console.error('Error in address resolution:', e);
           this.address = `Locatie: ${centerX.toFixed(2)}, ${centerY.toFixed(2)}`;
         }
       }
@@ -660,12 +537,15 @@ export class GezondWizard extends LitElement {
         if (!answer.source || answer.source.type !== 'wfs') return { id: answer.id, value: false };
         
         // Use WFS config from the answer definition
-        const wfsUrl = answer.source.url || 'https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/ows';
-        const typeName = answer.source.layer || 'ps:ps_hbtrl'; 
-        const buffer = answer.source.buffer || 0;
+        // Delegate to SpatialService
+        const config = {
+            url: answer.source.url,
+            layer: answer.source.layer || 'ps:ps_hbtrl', // Fallback defaults handled in logic or here
+            buffer: answer.source.buffer || 0
+        };
         
-        const hasOverlap = await this._checkWfsOverlap(wfsUrl, typeName, wkt, buffer);
-        console.log(`Check ${answer.id} (layer: ${typeName}, buffer: ${buffer}m): ${hasOverlap}`);
+        const hasOverlap = await spatialService.checkWfsOverlap(config, wkt);
+        console.log(`Check ${answer.id} (layer: ${config.layer}, buffer: ${config.buffer}m): ${hasOverlap}`);
         
         return { id: answer.id, value: hasOverlap };
       } catch (e) {
@@ -680,56 +560,7 @@ export class GezondWizard extends LitElement {
     this.answers = newAnswers;
   }
 
-  private async _checkWfsOverlap(url: string, typeName: string, wkt: string, buffer: number = 0): Promise<boolean> {
-    const params = new URLSearchParams({
-      service: 'WFS',
-      version: '2.0.0', // Switch back to 2.0.0 as it aligns better with modern defaults and JSON
-      request: 'GetFeature',
-      typeNames: typeName,
-      outputFormat: 'application/json',
-      count: '1'
-    });
 
-    // Construct CQL filter
-    // Error received: Illegal property name: SHAPE
-    // Trying 'geom' which is common for OGC/PostGIS services.
-    const geomCol = 'geom'; 
-    
-    let cqlFilter = '';
-    
-    if (buffer > 0) {
-      cqlFilter = `DWITHIN(${geomCol}, ${wkt}, ${buffer}, meters)`;
-    } else {
-      cqlFilter = `INTERSECTS(${geomCol}, ${wkt})`;
-    }
-    
-    params.append('cql_filter', cqlFilter);
-
-    try {
-      const fullUrl = `${url}?${params.toString()}`;
-      console.log('Fetching WFS:', fullUrl);
-      
-      const response = await fetch(fullUrl);
-      const text = await response.text();
-      
-      if (!response.ok) {
-        throw new Error(`WFS Error ${response.status}: ${text}`);
-      }
-      
-      // Check if response is XML (ServiceException)
-      if (text.trim().startsWith('<')) {
-        console.error('WFS returned XML instead of JSON. Likely an error:', text);
-        // Try to extract exception text for clearer logging
-        return false;
-      }
-      
-      const data = JSON.parse(text);
-      return (data.numberMatched > 0 || (data.features && data.features.length > 0));
-    } catch (e) {
-      console.error('WFS check failed:', e);
-      return false;
-    }
-  }
 
   private _extractWkt(feature: any): string {
      // Simple WKT writer for Polygon

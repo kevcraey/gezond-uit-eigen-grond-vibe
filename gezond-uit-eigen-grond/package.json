@@ -1,15 +1,7 @@
-
 {
   "name": "gezond-uit-eigen-grond",
-  "version": "3.0.4",
+  "version": "4.0.0",
   "changelog": [
-      "3.0.4 - Stijl: achtergrondkleur button",
-      "3.0.3 - WFS configuratie verplaatst naar config-bestand",
-      "3.0.2 - Bugfix: Overlap wordt opnieuw berekend bij aanpassen moestuin",
-      "3.0.1 - fixed buttons overlapping with map",
-      "3.0.0 - overlap berekening geimplementeerd",
-      "2.4.0 - Resultaten worden meteen getoond",
-      "2.3.0 - Reverse geocoding toegevoegd",
       "2.2.0 - Fixed: Resultaten worden getoond, styling verbeterd, navigatie gefixt",
       "2.1.0 - Wizard logica volledig geimplementeerd",
       "2.0.0 - Project structuur refactor"
