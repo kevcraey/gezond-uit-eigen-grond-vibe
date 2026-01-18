@@ -166,9 +166,13 @@ export class GezondWizard extends LitElement {
         }
         
         .step-inline-results {
-            margin-top: 1.5rem;
+            margin-top: 2rem;
             padding-top: 1rem;
             border-top: 1px solid #e0e0e0;
+            position: relative;
+            z-index: 5;
+            background-color: white;
+            clear: both;
         }
         
         .question-block {
@@ -326,15 +330,10 @@ export class GezondWizard extends LitElement {
           <p style="color: #666;">Teken een polygoon op de kaart om je moestuin aan te duiden.</p>
         `}
         
-        <div class="button-spacer">
-            <vl-button @click=${() => this._confirmAddressStep(step)} ?disabled=${!hasPolygon}>Controleer locatie</vl-button>
-        </div>
         
-        ${isConfirmed ? html`
-          <div class="step-inline-results">
-            ${this._renderStepResults(step)}
-          </div>
-        ` : ''}
+        <div class="step-inline-results">
+          ${this._renderStepResults(step)}
+        </div>
         
         <div class="vl-action-group" style="margin-top: 1rem;">
             ${step.navigation.back ? html`
@@ -342,7 +341,7 @@ export class GezondWizard extends LitElement {
             ` : html`
                 <vl-button secondary disabled>Terug</vl-button>
             `}
-            <vl-button @click=${this._nextStep} ?disabled=${!isConfirmed}>${step.navigation.next.label}</vl-button>
+            <vl-button @click=${this._nextStep} ?disabled=${!hasPolygon}>${step.navigation.next.label}</vl-button>
         </div>
       </vl-wizard-pane>
     `;
@@ -360,21 +359,15 @@ export class GezondWizard extends LitElement {
         
         ${step.questions?.map(question => this._renderQuestion(question))}
         
-        <div class="button-spacer">
-            <vl-button @click=${() => this._confirmQuestionStep(step)} ?disabled=${!allQuestionsAnswered}>Toon aanbeveling</vl-button>
+        <div class="step-inline-results">
+          ${this._renderStepResults(step)}
         </div>
-        
-        ${isConfirmed ? html`
-          <div class="step-inline-results">
-            ${this._renderStepResults(step)}
-          </div>
-        ` : ''}
         
         <div class="vl-action-group" style="margin-top: 1.5rem;">
             ${step.navigation.back ? html`
                 <vl-button secondary @click=${this._prevStep}>${step.navigation.back.label}</vl-button>
             ` : ''}
-            <vl-button @click=${this._nextStep} ?disabled=${!isConfirmed}>${step.navigation.next.label}</vl-button>
+            <vl-button @click=${this._nextStep} ?disabled=${!allQuestionsAnswered}>${step.navigation.next.label}</vl-button>
         </div>
       </vl-wizard-pane>
     `;
