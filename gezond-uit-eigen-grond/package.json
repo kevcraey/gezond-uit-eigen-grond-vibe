@@ -1,0 +1,62 @@
+{
+  "name": "gezond-uit-eigen-grond",
+  "version": "1.0.0",
+  "description": "Jubel",
+  "private": true,
+  "scripts": {
+    "postinstall": "rimraf build",
+    "build": "npx webpack",
+    "build:maven": "./node_modules/webpack/bin/webpack.js",
+    "prestart": "npm run build",
+    "start": "npx webpack serve --open --port 9000",
+    "predev": "npm run build",
+    "dev": "npx webpack serve --open --port 9000 --mode development",
+    "format": "npm run format:source",
+    "format:source": "eslint src --ext .ts --ext .html -c .eslintrc.json && npx prettier . --check",
+    "format:fix": "npm run format:source:fix",
+    "format:source:fix": "eslint src --ext .ts --ext .html -c .eslintrc.json --fix && npx prettier --write .",
+    "test": "jest"
+  },
+  "keywords": [
+    "jubel"
+  ],
+  "author": "DIDM",
+  "license": "MIT",
+  "devDependencies": {
+    "@testing-library/dom": "9.3.3",
+    "@types/jest": "29.5.12",
+    "@typescript-eslint/eslint-plugin": "6.9.0",
+    "@typescript-eslint/parser": "6.9.0",
+    "copy-webpack-plugin": "11.0.0",
+    "css-loader": "6.8.1",
+    "eslint": "8.43.0",
+    "eslint-plugin-html": "7.1.0",
+    "html-webpack-plugin": "5.5.3",
+    "jest": "29.7.0",
+    "jest-environment-jsdom": "29.7.0",
+    "mini-css-extract-plugin": "2.7.6",
+    "rimraf": "6.1.0",
+    "style-loader": "3.3.3",
+    "ts-jest": "29.1.2",
+    "ts-loader": "9.5.0",
+    "ts-node": "10.9.1",
+    "typescript": "5.2.2",
+    "webpack": "5.88.0",
+    "webpack-cli": "5.1.4",
+    "webpack-dev-server": "4.15.1"
+  },
+  "dependencies": {
+    "@domg-wc/components": "2.8.1",
+    "@domg-wc/map": "2.8.1",
+    "@domg-wc/styles": "2.8.1",
+    "@lit/task": "1.0.0",
+    "lit": "3.1.0",
+    "typedjson": "1.8.0"
+  },
+  "engines": {
+    "node": ">=24.11.1"
+  },
+  "volta": {
+    "node": "24.11.1"
+  }
+}

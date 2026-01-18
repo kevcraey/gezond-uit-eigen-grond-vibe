@@ -1,0 +1,9 @@
+{
+  "checks": {
+    "contamination": true,
+    "waterloop": false,
+    "busyRoad": true,
+    "pfasFireStation": false,
+    "industrial": true
+  }
+}
