@@ -1,8 +1,9 @@
 {
   "name": "gezond-uit-eigen-grond",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "changelog": [
-      "2.2.0 - Fixed: Resultaten worden getoond, styling verbeterd, navigatie gefixt",
+    "v4.0.1: Refactor naar standard flux componenten",
+    "v4.0.0: POC klaar - inclusief handleiding en refactoring",
       "2.1.0 - Wizard logica volledig geimplementeerd",
       "2.0.0 - Project structuur refactor"
   ],

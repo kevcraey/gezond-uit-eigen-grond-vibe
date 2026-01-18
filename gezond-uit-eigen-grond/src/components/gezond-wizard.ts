@@ -162,7 +162,7 @@ export class GezondWizard extends LitElement {
         </ul>
         <p>${this.config!.general.advice.intro}</p>
         
-        <div class="vl-action-group" style="margin-top: 1.5rem;">
+        <div class="vl-action-group vl-u-spacer-top--large">
             <vl-button @click=${this._nextStep}>${step.navigation.next.label}</vl-button>
         </div>
       </vl-wizard-pane>
@@ -322,19 +322,18 @@ export class GezondWizard extends LitElement {
 
   private _renderQuestion(question: StepQuestion): TemplateResult {
     return html`
-      <div class="question-block">
-        ${question.title ? html`<p class="question-title">${question.title}</p>` : ''}
-        ${question.description ? html`<p class="question-description">${question.description}</p>` : ''}
+      <div class="vl-u-spacer-bottom--large">
+        ${question.title ? html`<vl-title type="h4" class="vl-u-spacer-bottom--small">${question.title}</vl-title>` : ''}
+        ${question.description ? html`<p class="vl-u-spacer-bottom--small" style="color: #666;">${question.description}</p>` : ''}
         
-        <div class="radio-group-vertical">
-          <vl-radio-group 
-            @vl-input=${(e: any) => this._handleAnswer(question.answerId, e.target.value)}
-          >
-            ${question.options.map(option => html`
-              <vl-radio value="${option.value}">${option.label}</vl-radio>
-            `)}
-          </vl-radio-group>
-        </div>
+        <vl-radio-group 
+          block
+          @vl-input=${(e: any) => this._handleAnswer(question.answerId, e.target.value)}
+        >
+          ${question.options.map(option => html`
+            <vl-radio value="${option.value}">${option.label}</vl-radio>
+          `)}
+        </vl-radio-group>
       </div>
     `;
   }
@@ -390,13 +389,13 @@ export class GezondWizard extends LitElement {
     const icon = result.type === 'error' ? 'alert-triangle' : result.type === 'warning' ? 'alert-circle' : 'check-circle';
     
     return html`
-      <div class="alert-spacer">
+      <div class="vl-u-spacer-bottom--small">
         <vl-alert type="${alertType}" icon="${icon}" ?naked=${!result.important}>
           <span slot="title">${result.title}</span>
           <p>${unsafeHTML(result.description)}</p>
           ${result.button ? html`
             <div slot="actions">
-              <vl-button secondary class="alert-action-button" @click=${() => window.open(result.button!.link, '_blank')}>${result.button.caption}</vl-button>
+              <vl-button secondary @click=${() => window.open(result.button!.link, '_blank')}>${result.button.caption}</vl-button>
             </div>
           ` : ''}
         </vl-alert>

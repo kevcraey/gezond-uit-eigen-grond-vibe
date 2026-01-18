@@ -33,14 +33,6 @@ export const wizardStyles = css`
         position: relative;
     }
     
-    .button-spacer {
-        margin-top: 1.5rem;
-    }
-    
-    .alert-spacer {
-        margin-bottom: 1rem;
-    }
-    
     .results-section {
         margin-top: 3rem;
     }
@@ -61,21 +53,6 @@ export const wizardStyles = css`
         margin-bottom: 1rem;
     }
     
-    .radio-group-vertical {
-        margin-top: 1rem;
-        margin-bottom: 1rem;
-    }
-    
-    .radio-group-vertical vl-radio-group {
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-    }
-    
-    .radio-group-vertical vl-radio {
-        display: block;
-    }
-    
     .step-inline-results {
         margin-top: 2rem;
         padding-top: 1rem;
@@ -84,15 +61,6 @@ export const wizardStyles = css`
         z-index: 5;
         background-color: white;
         clear: both;
-    }
-    
-    .question-block {
-        margin-bottom: 1.5rem;
-    }
-    
-    .question-title {
-        font-weight: 600;
-        margin-bottom: 0.25rem;
     }
 
     .map-container {
@@ -114,15 +82,5 @@ export const wizardStyles = css`
         z-index: 10;
         background: white; /* Ensure it covers anything behind */
         clear: both;
-    }
-    
-    .question-description {
-        color: #666;
-        margin-bottom: 0.5rem;
-    }
-
-    .alert-action-button::part(button) {
-        background-color: white !important;
-        /* Ensure text contrast if needed */
     }
 `;
