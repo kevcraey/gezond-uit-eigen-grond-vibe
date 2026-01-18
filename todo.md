@@ -1,5 +1,1 @@
-- inleidende tekst boven de wizard tonen
-- rechts uitlijnen van de wizard knoppen
-- de inhoud niet de volledige breedte laten in beslag nemen
-- progress bar moet rood kleuren voor alle voorbije stappen (status aanpassen wss)
-- in stap 1 alles in de map steken
+- Waar zit de WFS config?

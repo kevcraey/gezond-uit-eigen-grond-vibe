@@ -233,6 +233,12 @@ export class GezondWizard extends LitElement {
         // But we handle both in _handlePolygonDrawn just in case
         drawAction.onDraw(this._handlePolygonDrawn.bind(this));
       }
+
+      // Bind modify action callback
+      const modifyAction = this.shadowRoot?.querySelector('#modify-polygon-action') as any;
+      if (modifyAction) {
+          modifyAction.onModify(this._handlePolygonModified.bind(this));
+      }
     } catch (e) {
       console.error('Failed to load wizard config:', e);
     }
@@ -325,7 +331,8 @@ export class GezondWizard extends LitElement {
               </vl-map-draw-polygon-action>
               <vl-map-modify-action
                 id="modify-polygon-action"
-                .active=${this.isEditing}>
+                .active=${this.isEditing}
+                @vl-modify=${this._handlePolygonModified}>
               </vl-map-modify-action>
             </vl-map-features-layer>
           </vl-map>
@@ -557,7 +564,7 @@ export class GezondWizard extends LitElement {
     this.answers = { ...this.answers, [answerId]: parsedValue };
   }
 
-  private async _handlePolygonDrawn(eventOrFeature: any) {
+  private _handlePolygonDrawn(eventOrFeature: any) {
     // Handle both CustomEvent (from standard Flux components) and direct feature callback (from vl-map-draw-action)
     let feature = eventOrFeature;
     if (eventOrFeature instanceof CustomEvent) {
@@ -566,6 +573,24 @@ export class GezondWizard extends LitElement {
 
     if (feature) {
       this.drawnPolygon = feature;
+      this._processPolygonFeature(feature);
+    }
+  }
+
+  private _handlePolygonModified(e: any) {
+      console.log('Polygon modified event:', e);
+      // For modify, the feature is usually already this.drawnPolygon, but we should verify.
+      // The event usually contains features.
+      const features = e.detail?.features || e.features; 
+      // If we have features, use the first one (assuming single polygon mode)
+      // Or just use this.drawnPolygon if it's the one being modified.
+      if (this.drawnPolygon) {
+          console.log('Processing modified polygon...');
+          this._processPolygonFeature(this.drawnPolygon);
+      }
+  }
+
+  private async _processPolygonFeature(feature: any) {
       // Get geometry for potential WFS queries
       const geometry = feature.getGeometry();
       if (geometry) {
@@ -574,8 +599,7 @@ export class GezondWizard extends LitElement {
         const centerX = (extent[0] + extent[2]) / 2;
         const centerY = (extent[1] + extent[3]) / 2;
         this.coordinates = [centerX, centerY];
-        this.address = `Locatie: ${centerX.toFixed(2)}, ${centerY.toFixed(2)}`;
-        
+
         // Automatically run checks and show results
         const addressStep = this.config?.steps.find(s => s.type === 'address-input');
         if (addressStep) {
@@ -587,7 +611,7 @@ export class GezondWizard extends LitElement {
           this.address = `Locatie bepalen...`;
           const response = await fetch(`https://geo.api.vlaanderen.be/geolocation/v4/Location?xy=${centerX},${centerY}`);
           const data = await response.json();
-          
+
           if (data && data.LocationResult && data.LocationResult.length > 0) {
             this.address = data.LocationResult[0].FormattedAddress;
           } else {
@@ -598,8 +622,8 @@ export class GezondWizard extends LitElement {
           this.address = `Locatie: ${centerX.toFixed(2)}, ${centerY.toFixed(2)}`;
         }
       }
-    }
   }
+
 
   private async _confirmAddressStep(step: Step) {
     // Perform address checks and set computed answers
@@ -756,11 +780,26 @@ export class GezondWizard extends LitElement {
     this.coordinates = null;
     this.address = '';
     
+    // Clear computed answers associated with address step checks
+    this._clearComputedAnswers();
+
     // Clear the map layer (accessing layer directly via querySelector)
     this._clearPolygonFromLayer();
     
     this.showDeleteModal = false;
     this.isEditing = false;
+  }
+
+  private _clearComputedAnswers() {
+      if (!this.config) return;
+      const addressStep = this.config.steps.find(s => s.type === 'address-input');
+      if (addressStep && addressStep.triggersAnswers) {
+          const newAnswers = { ...this.answers };
+          addressStep.triggersAnswers.forEach(id => {
+              delete newAnswers[id];
+          });
+          this.answers = newAnswers;
+      }
   }
   
   private _clearPolygonFromLayer() {
