@@ -21,37 +21,67 @@
       "id": "waterloop",
       "type": "computed",
       "name": "Waterloop langs perceel",
-      "source": { "type": "wfs", "layer": "waterlopenkaart", "buffer": 5 }
+      "source": { 
+        "type": "wfs", 
+        "url": "https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/ows",
+        "layer": "ps:ps_hbtrl", 
+        "buffer": 5 
+      }
     },
     {
       "id": "spoorweg",
       "type": "computed",
       "name": "Nabij drukke spoorweg",
-      "source": { "type": "wfs", "layer": "spoorwegen", "buffer": 30 }
+      "source": { 
+        "type": "wfs", 
+        "url": "https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/ows",
+        "layer": "ps:ps_hbtrl", 
+        "buffer": 30 
+      }
     },
     {
       "id": "autoweg",
       "type": "computed",
       "name": "Nabij drukke autoweg",
-      "source": { "type": "wfs", "layer": "hoofdwegen", "buffer": 30 }
+      "source": { 
+        "type": "wfs", 
+        "url": "https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/ows",
+        "layer": "ps:ps_hbtrl", 
+        "buffer": 30 
+      }
     },
     {
       "id": "pfas_zone",
       "type": "computed",
       "name": "In PFAS no-regret zone",
-      "source": { "type": "wfs", "layer": "pfas_zones", "buffer": 0 }
+      "source": { 
+        "type": "wfs", 
+        "url": "https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/ows",
+        "layer": "ps:ps_hbtrl", 
+        "buffer": 0 
+      }
     },
     {
       "id": "verontreinigd_perceel",
       "type": "computed",
       "name": "Gekend verontreinigd perceel",
-      "source": { "type": "wfs", "layer": "ovam_verontreinigingen", "buffer": 0 }
+      "source": { 
+        "type": "wfs", 
+        "url": "https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/ows",
+        "layer": "ps:ps_hbtrl", 
+        "buffer": 0 
+      }
     },
     {
       "id": "industrieel",
       "type": "computed",
       "name": "Nabij industriële activiteit",
-      "source": { "type": "wfs", "layer": "industrie_zones", "buffer": 100 }
+      "source": { 
+        "type": "wfs", 
+        "url": "https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/ows",
+        "layer": "ps:ps_hbtrl", 
+        "buffer": 100 
+      }
     },
     {
       "id": "materialen",

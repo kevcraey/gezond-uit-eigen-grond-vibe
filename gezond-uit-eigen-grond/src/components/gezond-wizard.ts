@@ -654,14 +654,13 @@ export class GezondWizard extends LitElement {
       try {
         if (!answer.source || answer.source.type !== 'wfs') return { id: answer.id, value: false };
         
-        // Use user-provided override URL and layer for now
-        // "Voorlopig kan je voor elk van de checks deze WFS gebruiken: ...layers=ps:ps_hbtrl"
-        const wfsUrl = 'https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/ows';
-        const typeName = 'ps:ps_hbtrl'; // Using the layer specified by user
+        // Use WFS config from the answer definition
+        const wfsUrl = answer.source.url || 'https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/ows';
+        const typeName = answer.source.layer || 'ps:ps_hbtrl'; 
         const buffer = answer.source.buffer || 0;
         
         const hasOverlap = await this._checkWfsOverlap(wfsUrl, typeName, wkt, buffer);
-        console.log(`Check ${answer.id} (buffer: ${buffer}m): ${hasOverlap}`);
+        console.log(`Check ${answer.id} (layer: ${typeName}, buffer: ${buffer}m): ${hasOverlap}`);
         
         return { id: answer.id, value: hasOverlap };
       } catch (e) {
