@@ -5,10 +5,20 @@ import { VlWizard, VlWizardPane } from '@domg-wc/components/block/wizard';
 import { VlAlert } from '@domg-wc/components/block/alert';
 import { VlFormLabelComponent, VlInputFieldComponent } from '@domg-wc/components/form';
 import { VlRadioComponent, VlRadioGroupComponent } from '@domg-wc/components/form/radio-group';
-import { VlMap, VlMapBaseLayerGRBGray, VlMapFeaturesLayer, VlMapLayerCircleStyle } from '@domg-wc/map';
+import { 
+  VlMap, 
+  VlMapBaseLayerGRBGray, 
+  VlMapFeaturesLayer, 
+  VlMapLayerCircleStyle,
+  VlMapSearch,
+  VlMapDrawPolygonAction,
+  VlMapLayerStyle,
+  VlMapActionControls,
+  VlMapActionControl
+} from '@domg-wc/map';
 import { vlContentBlockStyles, vlGridStyles, vlGroupStyles } from '@domg-wc/styles';
 import { LitElement, TemplateResult, css, html, nothing } from 'lit';
-import { customElement, state } from 'lit/decorators.js';
+import { customElement, state, query } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { 
   WizardConfig, 
@@ -33,7 +43,12 @@ registerWebComponents([
   VlMap,
   VlMapBaseLayerGRBGray,
   VlMapFeaturesLayer,
-  VlMapLayerCircleStyle
+  VlMapLayerCircleStyle,
+  VlMapSearch,
+  VlMapDrawPolygonAction,
+  VlMapLayerStyle,
+  VlMapActionControls,
+  VlMapActionControl
 ]);
 
 @customElement('gezond-wizard')
@@ -43,6 +58,7 @@ export class GezondWizard extends LitElement {
   
   // Wizard state
   @state() private activeStep: number = 1;
+
   @state() private address: string = '';
   @state() private coordinates: [number, number] | null = null;
   @state() private suggestions: any[] = [];
@@ -53,6 +69,12 @@ export class GezondWizard extends LitElement {
   
   // Confirmed steps (for showing results)
   @state() private confirmedSteps: Set<string> = new Set();
+  
+  // Drawn polygon for vegetable garden location
+  @state() private drawnPolygon: any = null;
+  
+  // Reference to map element
+  @query('vl-map') private mapElement: any;
   
   private searchTimeout: any;
 
@@ -169,6 +191,17 @@ export class GezondWizard extends LitElement {
     try {
       const response = await fetch('/wizard-config.json');
       this.config = await response.json();
+      
+      // Wait for render to complete so map elements exist
+      await this.updateComplete;
+      
+      // Bind draw action callback for polygon tool
+      const drawAction = this.shadowRoot?.querySelector('#draw-polygon-action') as any;
+      if (drawAction) {
+        // VlDrawPolygonAction passes the feature directly to the callback, not an event
+        // But we handle both in _handlePolygonDrawn just in case
+        drawAction.onDraw(this._handlePolygonDrawn.bind(this));
+      }
     } catch (e) {
       console.error('Failed to load wizard config:', e);
     }
@@ -218,39 +251,47 @@ export class GezondWizard extends LitElement {
 
   private _renderAddressStep(step: Step): TemplateResult {
     const isConfirmed = this.confirmedSteps.has(step.id);
+    const hasPolygon = this.drawnPolygon !== null;
     
     return html`
       <vl-wizard-pane name="${step.name}">
         <vl-title type="h2">${step.title}</vl-title>
         <p>${step.description}</p>
+        <p><strong>Zoek eerst je adres</strong> via de zoekbalk, en <strong>teken daarna</strong> de exacte locatie van je moestuin of kippenren door een polygoon te tekenen op de kaart.</p>
         
-        <div class="vl-grid">
-            <div class="vl-col--6-12">
-                <div class="address-input-wrapper">
-                    <vl-form-label for="address">Adres</vl-form-label>
-                    <vl-input-field
-                        id="address"
-                        .value=${this.address}
-                        @input=${this._handleAddressInput}
-                        placeholder="Zoek je adres..."
-                        autocomplete="off"
-                    ></vl-input-field>
-                    
-                    ${this.showSuggestions && this.suggestions.length > 0 ? html`
-                        <ul class="suggestions-list">
-                            ${this.suggestions.map((s) => html`
-                                <li class="suggestion-item" @click=${() => this._selectSuggestion(s)}>
-                                    ${s.display_name}
-                                </li>
-                            `)}
-                        </ul>
-                    ` : ''}
-                </div>
-                
-                <div class="button-spacer">
-                    <vl-button @click=${() => this._confirmAddressStep(step)} ?disabled=${!this.coordinates}>Adres opzoeken</vl-button>
-                </div>
-            </div>
+        <div class="map-container" style="height: 400px; margin: 1rem 0;">
+          <vl-map>
+            <vl-map-baselayer-grb-gray></vl-map-baselayer-grb-gray>
+            <vl-map-search></vl-map-search>
+            <vl-map-action-controls>
+              <vl-map-action-control 
+                action-id="draw-polygon-action" 
+                icon="pencil" 
+                label="Teken moestuin"
+                default-active>
+              </vl-map-action-control>
+            </vl-map-action-controls>
+            <vl-map-features-layer name="polygon-layer">
+              <vl-map-layer-style 
+                border-color="rgba(0, 85, 204, 1)" 
+                border-size="2" 
+                color="rgba(0, 85, 204, 0.3)">
+              </vl-map-layer-style>
+              <vl-map-draw-polygon-action 
+                id="draw-polygon-action">
+              </vl-map-draw-polygon-action>
+            </vl-map-features-layer>
+          </vl-map>
+        </div>
+        
+        ${hasPolygon ? html`
+          <p style="color: green;">✓ Je moestuin is ingetekend op de kaart.</p>
+        ` : html`
+          <p style="color: #666;">Teken een polygoon op de kaart om je moestuin aan te duiden.</p>
+        `}
+        
+        <div class="button-spacer">
+            <vl-button @click=${() => this._confirmAddressStep(step)} ?disabled=${!hasPolygon}>Controleer locatie</vl-button>
         </div>
         
         ${isConfirmed ? html`
@@ -466,6 +507,34 @@ export class GezondWizard extends LitElement {
     this.answers = { ...this.answers, [answerId]: parsedValue };
   }
 
+  private async _handlePolygonDrawn(eventOrFeature: any) {
+    // Handle both CustomEvent (from standard Flux components) and direct feature callback (from vl-map-draw-action)
+    let feature = eventOrFeature;
+    if (eventOrFeature instanceof CustomEvent) {
+      feature = eventOrFeature.detail?.feature;
+    }
+
+    if (feature) {
+      this.drawnPolygon = feature;
+      // Get geometry for potential WFS queries
+      const geometry = feature.getGeometry();
+      if (geometry) {
+        // Store coordinates for address/location info
+        const extent = geometry.getExtent();
+        const centerX = (extent[0] + extent[2]) / 2;
+        const centerY = (extent[1] + extent[3]) / 2;
+        this.coordinates = [centerX, centerY];
+        this.address = `Locatie: ${centerX.toFixed(2)}, ${centerY.toFixed(2)}`;
+        
+        // Automatically run checks and show results
+        const addressStep = this.config?.steps.find(s => s.type === 'address-input');
+        if (addressStep) {
+          await this._confirmAddressStep(addressStep);
+        }
+      }
+    }
+  }
+
   private async _confirmAddressStep(step: Step) {
     // Perform address checks and set computed answers
     await this._performAddressChecks(step);
@@ -477,8 +546,19 @@ export class GezondWizard extends LitElement {
   }
 
   private async _performAddressChecks(step: Step) {
+    // In a real application, we would use the polygon geometry or coordinates
+    // for WFS queries. 
+    console.log('Performing checks for location:', this.coordinates);
+    if (this.drawnPolygon) {
+         // Log the geometry to demonstrate we have access to it for WFS queries
+         console.log('Using polygon geometry for WFS checks:', this.drawnPolygon.getGeometry());
+    }
+
     // Load mock results (in real app, call actual WFS services based on config)
     try {
+      // Simulate network delay to make it feel more real
+      await new Promise(resolve => setTimeout(resolve, 500));
+
       const response = await fetch('/mock-config.json');
       const mockData = await response.json();
       
