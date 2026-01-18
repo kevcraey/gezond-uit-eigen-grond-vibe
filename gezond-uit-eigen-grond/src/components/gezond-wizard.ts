@@ -183,6 +183,27 @@ export class GezondWizard extends LitElement {
             font-weight: 600;
             margin-bottom: 0.25rem;
         }
+
+        .map-container {
+            height: 400px; 
+            margin: 1rem 0; 
+            position: relative;
+            overflow: hidden; /* Fixes map overflow */
+        }
+
+        vl-map {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .action-group-container {
+            margin-top: 1rem;
+            position: relative;
+            z-index: 10;
+            background: white; /* Ensure it covers anything behind */
+            clear: both;
+        }
         
         .question-description {
             color: #666;
@@ -269,7 +290,7 @@ export class GezondWizard extends LitElement {
         <p>${step.description}</p>
         <p><strong>Zoek eerst je adres</strong> via de zoekbalk, en <strong>teken daarna</strong> de exacte locatie van je moestuin of kippenren door een polygoon te tekenen op de kaart.</p>
         
-        <div class="map-container" style="height: 400px; margin: 1rem 0; position: relative;">
+        <div class="map-container">
           <vl-map>
             <vl-map-baselayer-grb-gray></vl-map-baselayer-grb-gray>
             <vl-map-search></vl-map-search>
@@ -335,7 +356,7 @@ export class GezondWizard extends LitElement {
           ${this._renderStepResults(step)}
         </div>
         
-        <div class="vl-action-group" style="margin-top: 1rem;">
+        <div class="vl-action-group action-group-container">
             ${step.navigation.back ? html`
                 <vl-button secondary @click=${this._prevStep}>${step.navigation.back.label}</vl-button>
             ` : html`
