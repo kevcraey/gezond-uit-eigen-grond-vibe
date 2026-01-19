@@ -1,7 +1,8 @@
 {
   "name": "gezond-uit-eigen-grond",
-  "version": "4.1.0",
+  "version": "4.1.1",
   "changelog": [
+    "v4.1.1: Cleanup - verwijderen jubel/juris referenties",
     "v4.1.0: Wizard fixes - component registratie, resultaten overzicht en styling",
     "v4.0.1: Refactor naar standard flux componenten",
     "v4.0.0: POC klaar - inclusief handleiding en refactoring",
