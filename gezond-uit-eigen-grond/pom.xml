@@ -2,12 +2,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>be.vlaanderen.omgeving.jubel</groupId>
-    <artifactId>jubel</artifactId>
+    <groupId>be.vlaanderen.omgeving.gezond-uit-eigen-grond</groupId>
+    <artifactId>gezond-uit-eigen-grond</artifactId>
     <version>1.2.3-SNAPSHOT</version>
   </parent>
-  <artifactId>jubel-webapp</artifactId>
-  <name>Jubel | Web App</name>
+  <artifactId>gezond-uit-eigen-grond-webapp</artifactId>
+  <name>Gezond uit eigen grond | Web App</name>
 
   <build>
     <resources>

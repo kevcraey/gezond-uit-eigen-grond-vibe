@@ -8,7 +8,7 @@
       "2.1.0 - Wizard logica volledig geimplementeerd",
       "2.0.0 - Project structuur refactor"
   ],
-  "description": "Jubel",
+  "description": "Gezond uit eigen grond",
   "private": true,
   "scripts": {
     "postinstall": "rimraf build",
@@ -25,7 +25,7 @@
     "test": "jest"
   },
   "keywords": [
-    "jubel"
+    "gezond-uit-eigen-grond"
   ],
   "author": "DIDM",
   "license": "MIT",
