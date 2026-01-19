@@ -1,8 +1,8 @@
-import '../components/app.config';
+import '../../common/config/app.config';
 import { defineWebComponent, registerWebComponents } from '@domg-wc/common';
 import { LitElement, TemplateResult, html, css } from 'lit';
-import { GezondWizard } from '../components/gezond-wizard';
-import '../components/gezond-template';
+import { GezondWizard } from '../componenten/gezond-wizard';
+import '../../common/componenten/gezond-template';
 
 registerWebComponents([GezondWizard]);
 

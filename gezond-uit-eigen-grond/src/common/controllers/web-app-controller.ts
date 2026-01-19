@@ -1,5 +1,5 @@
-import { User } from '../models/api/user';
-import { Configuratie } from '../models/config/configuratie';
+import { User } from '../domein/api/user';
+import { Configuratie } from '../domein/config/configuratie';
 import { HttpHelper } from '../util/http-helper';
 
 class WebAppController {

@@ -1,6 +1,6 @@
 
-import { registerWebComponents } from '@domg-wc/common';
-import { spatialService } from '../services/spatial.service';
+import { registerWebComponents, BaseLitElement, defineWebComponent } from '@domg-wc/common';
+import { spatialService } from '../../common/services/spatial.service';
 import { wizardStyles } from './gezond-wizard.css';
 import { VlButtonComponent, VlTitleComponent } from '@domg-wc/components/atom';
 import { VlWizard, VlWizardPane } from '@domg-wc/components/block/wizard';
@@ -20,9 +20,9 @@ import {
   VlMapModifyAction
 } from '@domg-wc/map';
 import { VlModalComponent } from '@domg-wc/components/block/modal';
-import { vlContentBlockStyles, vlGridStyles, vlGroupStyles } from '@domg-wc/styles';
-import { LitElement, TemplateResult, css, html, nothing } from 'lit';
-import { customElement, state, query } from 'lit/decorators.js';
+import { vlContentBlockStyles, vlGridStyles, vlGroupStyles, vlStackedStyles } from '@domg-wc/styles';
+import { TemplateResult, css, html, nothing } from 'lit';
+import { state, query } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { 
   WizardConfig, 
@@ -31,8 +31,9 @@ import {
   Result, 
   AnswerState, 
   evaluateRules,
-  getRulesForAnswers
-} from '../models/wizard-config';
+  getRulesForAnswers,
+  WfsSourceConfig
+} from '../../common/domein/wizard-config';
 
 registerWebComponents([
   VlWizard,
@@ -56,8 +57,8 @@ registerWebComponents([
   VlMapModifyAction
 ]);
 
-@customElement('gezond-wizard')
-export class GezondWizard extends LitElement {
+
+export class GezondWizard extends BaseLitElement {
   // Config
   @state() private config: WizardConfig | null = null;
   
@@ -91,6 +92,7 @@ export class GezondWizard extends LitElement {
       vlContentBlockStyles,
       vlGridStyles,
       vlGroupStyles,
+      vlStackedStyles,
       wizardStyles
     ];
   }
@@ -290,7 +292,9 @@ export class GezondWizard extends LitElement {
         <vl-title type="h2">${step.title}</vl-title>
         <p>${step.description || 'Overzicht van alle aanbevelingen op basis van je antwoorden.'}</p>
         
-        ${this._renderAllStepsResults()}
+        <div class="vl-grid vl-grid--align-center">
+          ${this._renderAllStepsResults()}
+        </div>
         
         <div class="vl-action-group" style="margin-top: 1.5rem;">
             ${step.navigation.back ? html`
@@ -326,12 +330,13 @@ export class GezondWizard extends LitElement {
         ${question.title ? html`<vl-title type="h4" class="vl-u-spacer-bottom--small">${question.title}</vl-title>` : ''}
         ${question.description ? html`<p class="vl-u-spacer-bottom--small" style="color: #666;">${question.description}</p>` : ''}
         
-        <vl-radio-group 
-          block
-          @vl-input=${(e: any) => this._handleAnswer(question.answerId, e.target.value)}
-        >
+        <vl-radio-group block>
           ${question.options.map(option => html`
-            <vl-radio value="${option.value}">${option.label}</vl-radio>
+            <vl-radio 
+              value="${option.value}"
+              .checked=${this.answers[question.answerId] === option.value}
+              @vl-change=${(e: CustomEvent) => this._handleAnswer(question.answerId, e.detail.value)}
+            >${option.label}</vl-radio>
           `)}
         </vl-radio-group>
       </div>
@@ -363,7 +368,7 @@ export class GezondWizard extends LitElement {
       
       if (matchedResults.length > 0) {
         resultBlocks.push(html`
-          <div class="step-results">
+          <div class="vl-column vl-column--12 vl-u-spacer-bottom--large">
             <vl-title type="h3">${step.resultsTitle}</vl-title>
             ${step.type === 'address-input' ? html`<p class="address-subtitle">${this.address}</p>` : ''}
             ${matchedResults.map(result => this._renderResult(result))}
@@ -387,11 +392,29 @@ export class GezondWizard extends LitElement {
   private _renderResult(result: Result): TemplateResult {
     const alertType = result.type === 'error' ? 'error' : result.type === 'warning' ? 'warning' : 'success';
     const icon = result.type === 'error' ? 'alert-triangle' : result.type === 'warning' ? 'alert-circle' : 'check-circle';
+    const isNaked = !result.important;
     
+    // Naked alerts: compact styling without background
+    if (isNaked) {
+      return html`
+        <div class="vl-u-spacer-bottom--small">
+          <vl-alert 
+            type="${alertType}" 
+            icon="${icon}" 
+            naked
+          >
+            ${result.title ? html`<span slot="title">${result.title}</span>` : nothing}
+            <p>${unsafeHTML(result.description)}</p>
+          </vl-alert>
+        </div>
+      `;
+    }
+    
+    // Important alerts: full styling with background and potential action buttons
     return html`
       <div class="vl-u-spacer-bottom--small">
-        <vl-alert type="${alertType}" icon="${icon}" ?naked=${!result.important}>
-          <span slot="title">${result.title}</span>
+        <vl-alert type="${alertType}" icon="${icon}">
+          ${result.title ? html`<span slot="title">${result.title}</span>` : nothing}
           <p>${unsafeHTML(result.description)}</p>
           ${result.button ? html`
             <div slot="actions">
@@ -540,8 +563,9 @@ export class GezondWizard extends LitElement {
         const config = {
             url: answer.source.url,
             layer: answer.source.layer || 'ps:ps_hbtrl', // Fallback defaults handled in logic or here
-            buffer: answer.source.buffer || 0
-        };
+            buffer: answer.source.buffer || 0,
+            type: 'wfs'
+        } as WfsSourceConfig;
         
         const hasOverlap = await spatialService.checkWfsOverlap(config, wkt);
         console.log(`Check ${answer.id} (layer: ${config.layer}, buffer: ${config.buffer}m): ${hasOverlap}`);
@@ -578,6 +602,13 @@ export class GezondWizard extends LitElement {
   }
 
   private _nextStep() {
+    // Confirm the current step before advancing so results appear on overview
+    if (this.config) {
+      const currentStep = this.config.steps[this.activeStep - 1]; // activeStep is 1-indexed
+      if (currentStep && currentStep.type === 'question') {
+        this._confirmQuestionStep(currentStep);
+      }
+    }
     this.activeStep++;
   }
 
@@ -643,3 +674,5 @@ export class GezondWizard extends LitElement {
      }
   }
 }
+
+defineWebComponent(GezondWizard, 'gezond-wizard');

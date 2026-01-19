@@ -30,12 +30,14 @@ export interface Answer {
   id: string;
   type: 'computed' | 'input';
   name: string;
-  source?: {
-    type: 'wfs';
-    layer: string;
-    buffer: number;
-    url?: string;
-  };
+  source?: WfsSourceConfig;
+}
+
+export interface WfsSourceConfig {
+  type: 'wfs';
+  layer: string; // typeName
+  buffer: number;
+  url?: string;
 }
 
 // Runtime state: collected answers

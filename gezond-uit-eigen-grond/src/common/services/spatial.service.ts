@@ -1,8 +1,4 @@
-export interface WfsSourceConfig {
-  url?: string;
-  layer: string; // typeName
-  buffer: number;
-}
+import { WfsSourceConfig } from '../domein/wizard-config';
 
 export class SpatialService {
   private static readonly DEFAULT_WFS_URL = 'https://www.mercator.vlaanderen.be/raadpleegdienstenmercatorpubliek/ows';

@@ -1,14 +1,14 @@
 import WEB_APP_CONTROLLER from '../controllers/web-app-controller';
-import { Configuratie } from '../models/config/configuratie';
-import { registerWebComponents } from '@domg-wc/common';
+import { Configuratie } from '../domein/config/configuratie';
+import { registerWebComponents, BaseLitElement, defineWebComponent } from '@domg-wc/common';
 import { VlTemplate, VlToasterComponent } from '@domg-wc/components/block';
 import { VlCookieConsent, VlFooter, VlHeader } from '@domg-wc/components/compliance';
-import { LitElement, TemplateResult, css, html, nothing } from 'lit';
+import { TemplateResult, css, html, nothing } from 'lit';
 import { query, state } from 'lit/decorators.js';
 
 registerWebComponents([VlTemplate, VlToasterComponent, VlHeader, VlFooter, VlCookieConsent]);
 
-export class GezondTemplate extends LitElement {
+export class GezondTemplate extends BaseLitElement {
   @state()
   private headerUuid?: string;
   @state()
@@ -108,4 +108,4 @@ export class GezondTemplate extends LitElement {
   }
 }
 
-customElements.define('gezond-template', GezondTemplate);
+defineWebComponent(GezondTemplate, 'gezond-template');

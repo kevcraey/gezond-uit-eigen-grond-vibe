@@ -9,7 +9,7 @@ module.exports = (env, argv) => {
     mode: 'production',
     devtool: isDevelopment ? 'eval-source-map' : false,
     entry: {
-      index: ['reflect-metadata', './src/pages/gezond-index.ts'],
+      index: './src/wizard/paginas/gezond-index.ts',
     },
     output: {
       filename: '[name].bundle.[chunkhash].js',
