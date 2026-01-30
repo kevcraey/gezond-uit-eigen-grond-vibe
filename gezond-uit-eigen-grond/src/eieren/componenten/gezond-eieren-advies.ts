@@ -142,8 +142,8 @@ export class GezondEierenAdvies extends BaseLitElement {
         <p>Selecteer de locatie van je kippenren op de kaart.</p>
 
         <gezond-kaart-invoer
-          mode="point"
-          instructie="Klik op de kaart om de locatie van je kippenren aan te duiden."
+          mode="polygon"
+          instructie="Zoek eerst je adres via de zoekbalk, en teken daarna de exacte locatie van je kippenren."
           @location-changed=${this._handleLocationChanged}>
         </gezond-kaart-invoer>
 

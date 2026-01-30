@@ -141,8 +141,8 @@ export class GezondGroentenAdvies extends BaseLitElement {
         <p>Selecteer de locatie van je moestuin op de kaart. We gebruiken dit om je postcode te bepalen.</p>
 
         <gezond-kaart-invoer
-          mode="point"
-          instructie="Klik op de kaart om de locatie van je moestuin aan te duiden."
+          mode="polygon"
+          instructie="Zoek eerst je adres via de zoekbalk, en teken daarna de exacte locatie van je moestuin."
           @location-changed=${this._handleLocationChanged}>
         </gezond-kaart-invoer>
 
