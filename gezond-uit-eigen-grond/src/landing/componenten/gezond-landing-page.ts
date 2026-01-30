@@ -53,15 +53,24 @@ export class GezondLandingPage extends BaseLitElement {
         }
         .tiles-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+          grid-template-columns: repeat(3, 1fr);
           gap: 1.5rem;
           margin-top: 2rem;
         }
+        @media (max-width: 1024px) {
+          .tiles-grid {
+            grid-template-columns: 1fr;
+          }
+        }
         .tile-wrapper {
+          display: flex;
           height: 100%;
         }
         vl-info-tile {
+          display: flex;
+          flex-direction: column;
           height: 100%;
+          width: 100%;
         }
       `
     ];
