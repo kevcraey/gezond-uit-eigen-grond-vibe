@@ -4,6 +4,7 @@ import { LitElement, TemplateResult, html, css } from 'lit';
 import { state } from 'lit/decorators.js';
 import { GezondWizard } from '../componenten/gezond-wizard';
 import '../../common/componenten/gezond-template';
+import '../../landing/componenten/gezond-landing-page';
 
 registerWebComponents([GezondWizard]);
 
@@ -54,7 +55,7 @@ export class GezondIndex extends LitElement {
   private renderLanding(): TemplateResult {
     return html`
       <div class="container">
-        <p>Landing page placeholder</p>
+        <gezond-landing-page></gezond-landing-page>
       </div>
     `;
   }
