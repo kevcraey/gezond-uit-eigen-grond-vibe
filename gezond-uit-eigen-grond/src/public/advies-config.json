@@ -1,0 +1,178 @@
+{
+  "version": "1.0.0",
+  "groenten": {
+    "stoffen": [
+      { "id": "As", "naam": "Arseen", "eenheid": "mg/kg" },
+      { "id": "Cd", "naam": "Cadmium", "eenheid": "mg/kg" },
+      { "id": "Cr", "naam": "Chroom", "eenheid": "mg/kg" },
+      { "id": "Hg", "naam": "Kwik", "eenheid": "mg/kg" },
+      { "id": "Pb", "naam": "Lood", "eenheid": "mg/kg" },
+      { "id": "Ni", "naam": "Nikkel", "eenheid": "mg/kg" },
+      { "id": "BaP", "naam": "Benzo(a)pyreen", "eenheid": "mg/kg" }
+    ],
+    "tuinTypes": [
+      { "id": "priveMetKippen", "label": "Privé-groentetuin met kippen" },
+      { "id": "priveZonderKippen", "label": "Privé-groentetuin zonder kippen" },
+      { "id": "volkstuin", "label": "Volkstuin" }
+    ],
+    "drempels": {
+      "priveMetKippen": {
+        "As":  { "groen": 103, "oranje": 103, "rood": 103 },
+        "Cd":  { "groen": 6, "oranje": 6, "rood": 6.8 },
+        "Cr":  { "groen": 120, "geel": 240, "oranje": 260, "rood": 260 },
+        "Hg":  { "groen": 1 },
+        "Pb":  { "groen": 200, "geel": 200, "oranje": 560, "rood": 560 },
+        "Ni":  { "groen": 100, "geel": 100, "oranje": 125, "rood": 157 },
+        "BaP": { "groen": 3.6, "geel": 4.9, "oranje": 6.3, "rood": 6.3 }
+      },
+      "priveZonderKippen": {
+        "As":  { "groen": 103, "oranje": 103, "rood": 103 },
+        "Cd":  { "groen": 6, "oranje": 6, "rood": 6.8 },
+        "Cr":  { "groen": 120, "geel": 240, "oranje": 265, "rood": 265 },
+        "Hg":  { "groen": 1 },
+        "Pb":  { "groen": 200, "geel": 200, "oranje": 560, "rood": 560 },
+        "Ni":  { "groen": 100, "geel": 100, "oranje": 150, "rood": 200 },
+        "BaP": { "groen": 3.6, "geel": 4.9, "oranje": 6.3, "rood": 6.3 }
+      },
+      "volkstuin": {
+        "As":  { "groen": 103, "oranje": 103, "rood": 103 },
+        "Cd":  { "groen": 6, "geel": 4.8, "oranje": 6.8, "rood": 6.8 },
+        "Cr":  { "groen": 120, "geel": 240, "oranje": 265, "rood": 265 },
+        "Hg":  { "groen": 1 },
+        "Pb":  { "groen": 275, "geel": 275, "oranje": 560, "rood": 560 },
+        "Ni":  { "groen": 125, "geel": 125, "oranje": 265, "rood": 447 },
+        "BaP": { "groen": 7.3, "geel": 7.3, "oranje": 16, "rood": 16 }
+      }
+    },
+    "cdUitzonderingPostcodes": ["2660", "2620", "2340", "2400", "2490", "3920", "3900", "3910", "3930"],
+    "cdAdvies": {
+      "tot2": {
+        "niveau": 1,
+        "tekst": "Alle groentensoorten zijn mogelijk indien de bodem niet te zuur is, voldoende organisch stof bevat en groenten grondig gewassen en geschild worden."
+      },
+      "2tot5": {
+        "niveau": 2,
+        "tekst": "Vermijd het telen van: andijvie, kervel, peterselie, rabarber, schorseneren, selder, sla, spinazie, tuinkers, veldsla en waterkers."
+      },
+      "5tot10": {
+        "niveau": 3,
+        "tekst": "Vermijd ook: aardappelen, aardbeien, bloemkool, prei, radijs, sjalot, ui, witlof en wortelen."
+      },
+      "boven10": {
+        "niveau": 4,
+        "tekst": "Vermijd ook: bonen, erwten, paprika en tomaat. Neem contact op met OVAM."
+      }
+    },
+    "adviezen": {
+      "groen": {
+        "titel": "Goed nieuws!",
+        "kleur": "#3c763d",
+        "tekst": "Op basis van de resultaten van het onderzoek van je groentetuin kan je zonder beperking genieten van je tuin.",
+        "tips": [
+          "Was na het werken in de tuin je handen.",
+          "Was groenten uit de tuin altijd goed of schil ze eventueel.",
+          "Bekijk de tips uit de praktijkgids op www.gezonduiteigengrond.be."
+        ]
+      },
+      "geel": {
+        "titel": "Lichte aandacht nodig",
+        "kleur": "#8a6d3b",
+        "tekst": "Je kan groenten telen in je tuin. De resultaten van je tuinonderzoek tonen aan dat de hoeveelheid van een of meerdere stoffen wat hoger is. Dat komt op vele plaatsen in Vlaanderen voor.",
+        "tips": [
+          "Zorg voor variatie in soort groenten en afwisseling tussen groenten uit eigen tuin en uit de winkel.",
+          "Zorg voor een goede zuurtegraad (pH) door te bekalken en organisch stofgehalte door te bemesten.",
+          "Was na het werken in de tuin je handen.",
+          "Was groenten uit de tuin altijd goed of schil ze eventueel.",
+          "Vermijd om grond uit de tuin in huis te brengen en poets met nat."
+        ]
+      },
+      "oranje": {
+        "titel": "Aandacht nodig",
+        "kleur": "#a94442",
+        "tekst": "De resultaten van je tuinonderzoek tonen aan dat de concentraties van een of meerdere stoffen wat hoger zijn, zoals op vele plaatsen in Vlaanderen. Om groenten te kunnen telen, hou je best rekening met volgend advies.",
+        "tips": [
+          "Vervang in de moestuin de bovenste 50 cm door een propere laag teelaarde of kweek je groenten in bakken.",
+          "Zorg voor een goede zuurtegraad en organisch stofgehalte.",
+          "Zorg voor variatie in soort groenten en afkomst (eigen tuin, winkel).",
+          "Was groenten uit je tuin altijd goed of schil ze eventueel.",
+          "Probeer de oorzaak van de vervuiling te achterhalen."
+        ]
+      },
+      "rood": {
+        "titel": "Neem contact op met OVAM",
+        "kleur": "#a94442",
+        "tekst": "De resultaten van je tuinonderzoek tonen aan dat de waarden wat hoger zijn vergeleken met gezondheidskundige richtlijnen. Neem contact op met OVAM om een advies op maat van je tuin te vragen.",
+        "contact": {
+          "email": "bodem@ovam.be",
+          "telefoon": "015 28 41 38"
+        },
+        "tips": [
+          "Was na het werken in de tuin je handen.",
+          "Laat kinderen niet spelen in de volle grond.",
+          "Eet geen groenten uit de tuin totdat je advies van OVAM hebt gekregen."
+        ]
+      }
+    }
+  },
+  "eieren": {
+    "stoffen": [
+      { "id": "PCDD_F", "naam": "PCDD/F's", "eenheid": "ng/kg ds" },
+      { "id": "DioxPCB", "naam": "Dioxineachtige PCB's", "eenheid": "ng/kg ds" }
+    ],
+    "verhoudingen": {
+      "metGroenten": [
+        { "advies": "3eieren", "aFactor": 12.3, "bFactor": 3.9 },
+        { "advies": "2eieren", "aFactor": 18.7, "bFactor": 5.84 },
+        { "advies": "1ei", "aFactor": 36.5, "bFactor": 11.5 },
+        { "advies": "afgeraden", "aFactor": 856, "bFactor": 470 }
+      ],
+      "zonderGroenten": [
+        { "advies": "3eieren", "aFactor": 12.3, "bFactor": 3.9 },
+        { "advies": "2eieren", "aFactor": 18.7, "bFactor": 5.84 },
+        { "advies": "1ei", "aFactor": 36.5, "bFactor": 11.5 },
+        { "advies": "afgeraden", "aFactor": 856, "bFactor": 470 }
+      ]
+    },
+    "leeftijdsadvies": {
+      "3eieren": { "volwassenen": "3 eieren/week", "kinderen6tot12": "2 eieren/week", "kinderenOnder6": "1 ei/week" },
+      "2eieren": { "volwassenen": "2 eieren/week", "kinderen6tot12": "1 ei/week", "kinderenOnder6": "1 ei per 14 dagen" },
+      "1ei": { "volwassenen": "1 ei/week", "kinderen6tot12": "1 ei per 14 dagen", "kinderenOnder6": "Afgeraden" },
+      "afgeraden": { "volwassenen": "Afgeraden", "kinderen6tot12": "Afgeraden", "kinderenOnder6": "Afgeraden" }
+    },
+    "adviezen": {
+      "3eieren": {
+        "titel": "3 eieren per week",
+        "kleur": "groen",
+        "tekst": "Je kan de eieren van je eigen kippen eten. Om een te hoog cholesterolgehalte te vermijden, eet je best niet te veel eieren.",
+        "tips": [
+          "Geniet van je tuin, maar kijk ook even op www.gezonduiteigengrond.be/kippen-houden voor algemeen preventieve adviezen."
+        ]
+      },
+      "2eieren": {
+        "titel": "2 eieren per week",
+        "kleur": "geel",
+        "tekst": "Op basis van de meetresultaten voor dioxines en PCB's in de bodem van de kippenren is het aangeraden om het aantal eieren te beperken.",
+        "tips": [
+          "Kijk op www.gezonduiteigengrond.be/kippen-houden voor hoe je jouw kippenren best inricht."
+        ]
+      },
+      "1ei": {
+        "titel": "1 ei per week",
+        "kleur": "oranje",
+        "tekst": "Op basis van de meetresultaten voor dioxines en PCB's in de bodem van de kippenren is het aangeraden om het aantal eieren sterk te beperken.",
+        "tips": [
+          "Kijk op www.gezonduiteigengrond.be/kippen-houden voor hoe je jouw kippenren best inricht.",
+          "Overweeg om de grond van de kippenren te vervangen."
+        ]
+      },
+      "afgeraden": {
+        "titel": "Eieren afgeraden",
+        "kleur": "rood",
+        "tekst": "Op basis van de meetresultaten voor dioxines en PCB's in de bodem van de kippenren is het afgeraden om eieren van je eigen kippen te eten.",
+        "tips": [
+          "Neem contact op met een deskundige voor advies over sanering van de kippenren."
+        ]
+      }
+    }
+  }
+}
