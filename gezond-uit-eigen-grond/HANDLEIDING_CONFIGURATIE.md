@@ -9,8 +9,6 @@ Alle configuratie bevindt zich in één bestand: `src/public/wizard-config.json`
 Open het bestand `src/public/wizard-config.json` in een teksteditor (zoals Visual Studio Code, Notepad, of TextEdit).
 Dit bestand is geschreven in **JSON** formaat. Het is belangrijk dat de structuur (haakjes `{}`, `[]` en komma's `,`) intact blijft.
 
-> **Tip voor beheerders:** Als de applicatie al online staat, vind je dit bestand meestal in de hoofdmap van de website als `wizard-config.json`. Je kunt dit bestand direct op de server aanpassen; een nieuwe installatie (build) is niet nodig. Vernieuw daarna wel de pagina in de browser.
->
 > **Let op:** JSON is strikt. Vergeet geen komma's tussen items, gebruik altijd dubbele aanhalingstekens `"` voor teksten, en zorg dat haakjes netjes sluiten.
 
 ## 2. Algemene teksten aanpassen
@@ -65,32 +63,7 @@ Voorbeeld:
 **Nieuwe laag toevoegen?**
 Je kunt een heel blok `{ ... }` kopiëren en plakken. Zorg dat de *"id"* uniek is (bijv. `"nieuwe_laag"`).
 
-## 4. Vragen en Antwoorden aanpassen
-
-Vragen worden gedefinieerd in de sectie `"steps"`. Zoek naar stappen met `"type": "question"`.
-
-Voorbeeld van een vraag:
-
-```json
-{
-  "answerId": "pesticiden",
-  "title": "Pesticiden?",
-  "description": "Heb je weet van het gebruik van pesticiden op je perceel?",
-  "type": "radio",
-  "options": [
-    { "value": false, "label": "Neen" },
-    { "value": true, "label": "Ja" }
-  ]
-}
-```
-
-* **answerId**: Dit koppelt de vraag aan de interne logica. **Verander dit niet** tenzij je weet wat je doet.
-* **title / description**: Pas de vraagstelling aan.
-* **options**: Pas de keuzemogelijkheden aan.
-  * `value`: De waarde die achter de schermen wordt gebruikt (bijv. `true`, `false`, of `"tekst"`).
-  * `label`: De tekst die de gebruiker ziet.
-
-## 5. Resultaten en Adviezen aanpassen
+## 4. Resultaten en Adviezen aanpassen
 
 Wanneer de gebruiker iets invult of wanneer er iets op de kaart gevonden wordt, toont de app een resultaatblokje. Deze staan onder `"results"`.
 
@@ -115,7 +88,7 @@ Voorbeeld:
 * **button** (optioneel): Voegt een actieknop toe.
   * `"button": { "caption": "Klik hier", "link": "https://..." }`
 
-## 6. Regels (Rules) aanpassen
+## 5. Regels (Rules) aanpassen
 
 De sectie `"rules"` bepaalt welk resultaat getoond wordt op basis van de antwoorden.
 
@@ -128,11 +101,3 @@ Voorbeeld:
 Dit betekent: "Als de check `waterloop` waar is (true), toon dan het resultaatblokje `dicht_bij_waterloop`".
 
 Hier hoef je meestal niets aan te veranderen tenzij je nieuwe lagen of vragen hebt toegevoegd.
-
-## Samenvatting
-
-1. Open `src/public/wizard-config.json`.
-2. Pas teksten aan tussen dubbele quotes.
-3. Wijzig WFS lagen en buffer-afstanden indien nodig.
-4. Controleer of je geen komma's vergeet.
-5. Herlaad de pagina om de wijzigingen te zien.

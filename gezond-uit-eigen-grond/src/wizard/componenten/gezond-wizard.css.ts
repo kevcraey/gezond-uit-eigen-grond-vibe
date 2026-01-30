@@ -83,4 +83,14 @@ export const wizardStyles = css`
         background: white; /* Ensure it covers anything behind */
         clear: both;
     }
+
+    .wizard-actions {
+        display: flex;
+        width: 100%;
+        align-items: center;
+    }
+
+    .wizard-button-next {
+        margin-left: auto;
+    }
 `;

@@ -204,7 +204,7 @@
     },
     "assen_nabij_waterloop": {
       "title": "Assen nabij waterloop - Extra risico",
-      "description": "Er zijn assen aangetroffen én je perceel ligt nabij een waterloop. <strong>Verhoogd risico op uitspoeling!</strong>",
+      "description": "Er zijn VEEL assen aangetroffen én je perceel ligt nabij een waterloop. <strong>Verhoogd risico op uitspoeling!</strong>",
       "button": { "caption": "Vraag bodemanalyse aan", "link": "/bodemanalyse" },
       "type": "error",
       "important": true

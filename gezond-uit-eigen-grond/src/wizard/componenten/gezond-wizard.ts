@@ -164,8 +164,8 @@ export class GezondWizard extends BaseLitElement {
         </ul>
         <p>${this.config!.general.advice.intro}</p>
         
-        <div class="vl-action-group vl-u-spacer-top--large">
-            <vl-button @click=${this._nextStep}>${step.navigation.next.label}</vl-button>
+        <div class="vl-action-group vl-u-spacer-top--large wizard-actions">
+            <vl-button class="wizard-button-next" @click=${this._nextStep}>${step.navigation.next.label}</vl-button>
         </div>
       </vl-wizard-pane>
     `;
@@ -248,13 +248,13 @@ export class GezondWizard extends BaseLitElement {
           ${this._renderStepResults(step)}
         </div>
         
-        <div class="vl-action-group action-group-container">
+        <div class="vl-action-group action-group-container wizard-actions">
             ${step.navigation.back ? html`
                 <vl-button secondary @click=${this._prevStep}>${step.navigation.back.label}</vl-button>
             ` : html`
                 <vl-button secondary disabled>Terug</vl-button>
             `}
-            <vl-button @click=${this._nextStep} ?disabled=${!hasPolygon}>${step.navigation.next.label}</vl-button>
+            <vl-button class="wizard-button-next" @click=${this._nextStep} ?disabled=${!hasPolygon}>${step.navigation.next.label}</vl-button>
         </div>
       </vl-wizard-pane>
     `;
@@ -276,11 +276,11 @@ export class GezondWizard extends BaseLitElement {
           ${this._renderStepResults(step)}
         </div>
         
-        <div class="vl-action-group" style="margin-top: 1.5rem;">
+        <div class="vl-action-group wizard-actions" style="margin-top: 1.5rem;">
             ${step.navigation.back ? html`
                 <vl-button secondary @click=${this._prevStep}>${step.navigation.back.label}</vl-button>
             ` : ''}
-            <vl-button @click=${this._nextStep} ?disabled=${!allQuestionsAnswered}>${step.navigation.next.label}</vl-button>
+            <vl-button class="wizard-button-next" @click=${this._nextStep} ?disabled=${!allQuestionsAnswered}>${step.navigation.next.label}</vl-button>
         </div>
       </vl-wizard-pane>
     `;
@@ -296,7 +296,7 @@ export class GezondWizard extends BaseLitElement {
           ${this._renderAllStepsResults()}
         </div>
         
-        <div class="vl-action-group" style="margin-top: 1.5rem;">
+        <div class="vl-action-group wizard-actions" style="margin-top: 1.5rem;">
             ${step.navigation.back ? html`
                 <vl-button secondary @click=${this._prevStep}>${step.navigation.back.label}</vl-button>
             ` : ''}
