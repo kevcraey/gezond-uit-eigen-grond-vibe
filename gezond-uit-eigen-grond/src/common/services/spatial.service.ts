@@ -71,6 +71,74 @@ export class SpatialService {
        return null;
     }
   }
+
+  /**
+   * Gets the postcode from coordinates (Lambert 72) using reverse geocoding.
+   */
+  async getPostcodeFromCoordinates(x: number, y: number): Promise<string | null> {
+    try {
+      const response = await fetch(`${SpatialService.GEOLOCATION_API_URL}?xy=${x},${y}`);
+      if (!response.ok) {
+        throw new Error(`Geolocation API failed: ${response.statusText}`);
+      }
+      const data = await response.json();
+
+      if (data && data.LocationResult && data.LocationResult.length > 0) {
+        const location = data.LocationResult[0];
+        // The API returns Zipcode field
+        if (location.Zipcode) {
+          return location.Zipcode;
+        }
+        // Fallback: try to extract postcode from FormattedAddress (format: "Straat 123, 9000 Gent")
+        const formattedAddress = location.FormattedAddress;
+        if (formattedAddress) {
+          const postcodeMatch = formattedAddress.match(/\b(\d{4})\b/);
+          if (postcodeMatch) {
+            return postcodeMatch[1];
+          }
+        }
+      }
+      return null;
+    } catch (error) {
+      console.error('SpatialService: Error fetching postcode', error);
+      return null;
+    }
+  }
+
+  /**
+   * Gets both address and postcode from coordinates in a single API call.
+   */
+  async getLocationInfo(x: number, y: number): Promise<{ address: string | null; postcode: string | null }> {
+    try {
+      const response = await fetch(`${SpatialService.GEOLOCATION_API_URL}?xy=${x},${y}`);
+      if (!response.ok) {
+        throw new Error(`Geolocation API failed: ${response.statusText}`);
+      }
+      const data = await response.json();
+
+      if (data && data.LocationResult && data.LocationResult.length > 0) {
+        const location = data.LocationResult[0];
+        let postcode = location.Zipcode || null;
+
+        // Fallback: extract from formatted address
+        if (!postcode && location.FormattedAddress) {
+          const postcodeMatch = location.FormattedAddress.match(/\b(\d{4})\b/);
+          if (postcodeMatch) {
+            postcode = postcodeMatch[1];
+          }
+        }
+
+        return {
+          address: location.FormattedAddress || null,
+          postcode
+        };
+      }
+      return { address: null, postcode: null };
+    } catch (error) {
+      console.error('SpatialService: Error fetching location info', error);
+      return { address: null, postcode: null };
+    }
+  }
 }
 
 export const spatialService = new SpatialService();

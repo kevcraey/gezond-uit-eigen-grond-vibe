@@ -91,6 +91,10 @@ module.exports = (env, argv) => {
             from: 'src/public/wizard-config.json',
             to: 'wizard-config.json',
           },
+          {
+            from: 'src/public/advies-config.json',
+            to: 'advies-config.json',
+          },
         ],
       }),
       new MiniCssExtractPlugin(),

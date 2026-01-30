@@ -5,6 +5,8 @@ import { state } from 'lit/decorators.js';
 import { GezondWizard } from '../componenten/gezond-wizard';
 import '../../common/componenten/gezond-template';
 import '../../landing/componenten/gezond-landing-page';
+import '../../groenten/componenten/gezond-groenten-advies';
+import '../../eieren/componenten/gezond-eieren-advies';
 
 registerWebComponents([GezondWizard]);
 
@@ -75,7 +77,7 @@ export class GezondIndex extends LitElement {
   private renderAdviesGroenten(): TemplateResult {
     return html`
       <div class="container">
-        <p>Advies groenten placeholder</p>
+        <gezond-groenten-advies></gezond-groenten-advies>
       </div>
     `;
   }
@@ -83,7 +85,7 @@ export class GezondIndex extends LitElement {
   private renderAdviesEieren(): TemplateResult {
     return html`
       <div class="container">
-        <p>Advies eieren placeholder</p>
+        <gezond-eieren-advies></gezond-eieren-advies>
       </div>
     `;
   }
