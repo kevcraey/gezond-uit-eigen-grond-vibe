@@ -1,0 +1,18 @@
+{
+  "defaults": {
+    "standard": "WCAG2AA",
+    "timeout": 10000,
+    "wait": 1000,
+    "chromeLaunchConfig": {
+      "args": ["--no-sandbox"]
+    },
+    "runners": ["axe"],
+    "includeWarnings": true
+  },
+  "urls": [
+    "http://localhost:9000/",
+    "http://localhost:9000/#doe-de-test",
+    "http://localhost:9000/#advies-groenten",
+    "http://localhost:9000/#advies-eieren"
+  ]
+}

@@ -6,8 +6,8 @@
     "v4.1.0: Wizard fixes - component registratie, resultaten overzicht en styling",
     "v4.0.1: Refactor naar standard flux componenten",
     "v4.0.0: POC klaar - inclusief handleiding en refactoring",
-      "2.1.0 - Wizard logica volledig geimplementeerd",
-      "2.0.0 - Project structuur refactor"
+    "2.1.0 - Wizard logica volledig geimplementeerd",
+    "2.0.0 - Project structuur refactor"
   ],
   "description": "Gezond uit eigen grond",
   "private": true,
@@ -23,7 +23,9 @@
     "format:source": "eslint src --ext .ts --ext .html -c .eslintrc.json && npx prettier . --check",
     "format:fix": "npm run format:source:fix",
     "format:source:fix": "eslint src --ext .ts --ext .html -c .eslintrc.json --fix && npx prettier --write .",
-    "test": "jest"
+    "test": "jest",
+    "audit:a11y": "pa11y-ci",
+    "audit:axe": "axe http://localhost:9000 --tags wcag2a,wcag2aa,wcag21a,wcag21aa"
   },
   "keywords": [
     "gezond-uit-eigen-grond"
@@ -31,10 +33,12 @@
   "author": "DIDM",
   "license": "MIT",
   "devDependencies": {
+    "@axe-core/cli": "4.11.0",
     "@testing-library/dom": "9.3.3",
     "@types/jest": "29.5.12",
     "@typescript-eslint/eslint-plugin": "6.9.0",
     "@typescript-eslint/parser": "6.9.0",
+    "axe-core": "4.11.1",
     "copy-webpack-plugin": "11.0.0",
     "css-loader": "6.8.1",
     "eslint": "8.43.0",
@@ -43,6 +47,7 @@
     "jest": "29.7.0",
     "jest-environment-jsdom": "29.7.0",
     "mini-css-extract-plugin": "2.7.6",
+    "pa11y-ci": "4.0.1",
     "rimraf": "6.1.0",
     "style-loader": "3.3.3",
     "ts-jest": "29.1.2",
