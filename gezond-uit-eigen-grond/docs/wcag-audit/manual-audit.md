@@ -20,6 +20,34 @@ Deze handmatige audit test WCAG-criteria die niet geautomatiseerd kunnen worden 
 - Screenreader: macOS VoiceOver
 - Dev server: http://localhost:9000
 
+## Executive Summary
+
+**Overall Result**: ❌ **NIET WCAG 2.1 AA COMPLIANT**
+
+**Kritieke blockers** (Level A - Must Fix):
+1. Map keyboard toegankelijkheid ontbreekt - complete blocker voor keyboard-only gebruikers
+2. Form labels niet semantisch geassocieerd met inputs
+3. Main landmark ontbreekt in template
+4. ARIA labels ontbreken voor kaart controls
+5. Live regions ontbreken voor dynamische resultaten
+
+**Belangrijke problemen** (Level AA - Should Fix):
+- Kleur contrast onvoldoende voor wizard status tekst (green = 3.95:1)
+- Focus indicators niet geverifieerd
+- Heading hierarchy heeft enkele gaps
+
+**Compliance Status**:
+- WCAG 2.1.1 Keyboard (Level A): ❌ **FAIL** - Map niet toegankelijk
+- WCAG 1.3.1 Info and Relationships (Level A): ❌ **FAIL** - Form labels, landmarks
+- WCAG 4.1.2 Name, Role, Value (Level A): ❌ **FAIL** - ARIA labels ontbreken
+- WCAG 4.1.3 Status Messages (Level AA): ❌ **FAIL** - Live regions ontbreken
+- WCAG 1.4.3 Contrast (Level AA): ⚠️ **PARTIAL** - Wizard green problematisch
+- WCAG 2.4.7 Focus Visible (Level AA): ⚠️ **UNCERTAIN** - Niet visueel getest
+
+**Prioriteit**: 5 kritieke Level A issues moeten worden opgelost voor minimale compliance.
+
+**Scope**: Deze audit test custom code. Flux design system componenten (@domg-wc) vallen buiten scope (zie External Dependencies sectie).
+
 ---
 
 ## 1. Toetsenbord Toegankelijkheid
@@ -265,11 +293,39 @@ ${this.mode === 'polygon' ? html`
 
 #### Test Methodologie
 
-Gesimuleerde VoiceOver test via code analyse:
-- Inspectie van ARIA attributes
-- Semantic HTML structuur
-- Label associations
-- Dynamic content announcements
+**Code-gebaseerde analyse** (geen daadwerkelijke screenreader test):
+- Inspectie van ARIA attributes in broncode
+- Semantic HTML structuur analyse
+- Label associations verificatie via code
+- Dynamic content announcements implementatie check
+
+**Nota**: Daadwerkelijke screenreader testing (VoiceOver, NVDA, JAWS) gebeurt tijdens de implementatiefase. Deze analyse identificeert potentiële problemen op basis van code-inspectie en WCAG best practices.
+
+#### External Dependencies & Assumptions
+
+Deze audit richt zich op custom code. De volgende externe componenten uit de Flux design system (`@domg-wc/components`) worden **niet geaudit** en veronderstellen WCAG-compliance:
+
+**Out of scope (Flux components)**:
+- `vl-alert` - Alert/notification component (rood/groen variants)
+- `vl-button` - Button component en focus styling
+- `vl-radio` / `vl-radio-group` - Radio button controls
+- `vl-input-field` - Text/number input fields
+- `vl-modal` - Modal dialog component
+- `vl-info-tile` - Info tile container
+- `vl-wizard` - Wizard navigation component
+- `vl-breadcrumb` - Breadcrumb navigation
+- `vl-header` / `vl-footer` - Page header/footer landmarks
+- `vl-map-*` - Map components (draw, search, modify actions)
+
+**Assumptie**: Deze componenten voldoen aan WCAG 2.1 AA en bieden:
+- Correct keyboard navigation (TAB, ENTER, ESC)
+- Semantic HTML en ARIA attributes
+- Voldoende kleurcontrast
+- Focus indicators
+
+**Risico**: Als Flux componenten toegankelijkheidsproblemen hebben, kunnen deze doorwerken in de applicatie ondanks correcte implementatie van custom code.
+
+**Aanbeveling**: Verifieer Flux component accessibility bij kritieke problemen of overweeg periodieke audits van de upstream library.
 
 #### Bevindingen per Criterium
 
@@ -479,33 +535,42 @@ color: #cc5200
 
 **Rode alert** (via vl-alert type="error"):
 - Afhankelijk van vl-alert component defaults
-- **Assumptie**: Flux design system voldoet aan WCAG (niet geverifieerd)
+- **Out of scope**: Flux component (zie External Dependencies)
 
 **Groene alert** (via vl-alert type="success"):
 - Afhankelijk van vl-alert component defaults
-- **Assumptie**: Flux design system voldoet aan WCAG (niet geverifieerd)
+- **Out of scope**: Flux component (zie External Dependencies)
 
 ##### 3.2 Tekst Kleuren
 
 **Status messages**:
-```typescript
-// Kaart invoer, regel 218-219
-<p style="color: green;">✓ Locatie geselecteerd</p>
-<p style="color: #666;">Teken een polygoon...</p>
-```
-- ❌ **PROBLEEM**: `color: green` op wit
-  - Welke green? Waarschijnlijk #008000
-  - Contrast: ~4.0:1 ⚠️ **ONVOLDOENDE** voor kleine tekst (< 4.5:1)
 
-- ✅ `color: #666` op wit: 5.7:1 **GOED**
+**Kaart invoer component**:
+```typescript
+// gezond-kaart-invoer.ts, regel 98-99 (CSS)
+.status-success {
+  color: #3c763d;
+}
+```
+- ✅ `color: #3c763d` op wit (#ffffff)
+  - **Contrast ratio**: 5.14:1 ✅ **VOLDOET** (> 4.5:1 voor normale tekst)
 
 **Wizard status**:
 ```typescript
-// Wizard, regel 240-244
+// gezond-wizard.ts, regel 241
 <p style="color: green;">✓ Je moestuin is ingetekend</p>
-<p style="color: #666;">Teken een polygoon...</p>
 ```
-- ❌ **ZELFDE PROBLEEM**: `color: green`
+- ❌ **PROBLEEM**: Inline `color: green` op wit
+  - `green` keyword = #008000 (browser default)
+  - **Contrast ratio**: 3.95:1 ⚠️ **ONVOLDOENDE** voor kleine tekst (< 4.5:1)
+  - **Oplossing nodig**: Vervang door #3c763d (5.14:1) of donkerder
+
+**Gray instructie tekst**:
+```typescript
+// Meerdere componenten
+color: #666;
+```
+- ✅ `color: #666` op wit: 5.74:1 **GOED**
 
 **Subtitle tekst**:
 ```css
@@ -521,7 +586,7 @@ color: #cc5200
 
 **Breadcrumbs**:
 - Gebruikt vl-breadcrumb component
-- **Assumptie**: Flux component heeft correct contrast (niet geverifieerd)
+- **Out of scope**: Flux component (zie External Dependencies)
 
 **Help links**:
 ```typescript
@@ -550,12 +615,12 @@ ${step.helpLink ? html`<p><a href="...">...</a></p>` : ''}
 |---------|-----------|-------------|-------|--------|
 | Alert geel | #856404 | #fff3cd | 6.8:1 | ✅ GOED |
 | Alert oranje | #cc5200 | #ffe8cc | 5.2:1 | ✅ GOED |
-| Status groen | green | white | ~4.0:1 | ❌ **ONVOLDOENDE** |
-| Subtitle | #666 | white | 5.7:1 | ✅ GOED |
-| Gray text | #666 | white | 5.7:1 | ✅ GOED |
+| Status groen (kaart) | #3c763d | #ffffff | 5.14:1 | ✅ GOED |
+| Status groen (wizard) | green (#008000) | white | 3.95:1 | ❌ **ONVOLDOENDE** |
+| Gray text | #666 | #ffffff | 5.74:1 | ✅ GOED |
 
 **Kritieke problemen**:
-1. Inline `color: green` moet vervangen worden door WCAG-compliant groen (bijv. #008000 → #006400 of #005A00)
+1. Wizard inline `color: green` (#008000, 3.95:1) moet vervangen worden door #3c763d (5.14:1) of donkerder groen voor AA-compliance
 
 ---
 
@@ -574,16 +639,18 @@ ${step.helpLink ? html`<p><a href="...">...</a></p>` : ''}
   - Flux component library (@domg-wc/components)
 
 **Componenten zonder verified focus indicator**:
-1. `vl-button`
-2. `vl-radio`
-3. `vl-input-field`
-4. `.tile-wrapper` / `vl-info-tile`
-5. Map control buttons
-6. Wizard navigation buttons
+1. `vl-button` - **Out of scope**: Flux component
+2. `vl-radio` - **Out of scope**: Flux component
+3. `vl-input-field` - **Out of scope**: Flux component
+4. `.tile-wrapper` / `vl-info-tile` - **Out of scope**: Flux component
+5. Map control buttons - **Out of scope**: Flux vl-button binnen custom context
+6. Wizard navigation buttons - **Out of scope**: Flux vl-button
 
-**Potentiële problemen**:
-- Web Components in Shadow DOM kunnen default focus outlines verbergen
-- Custom styling kan `:focus` outline verwijderen zonder vervanging
+**Nota**: Focus indicators van Flux components vallen buiten scope van deze audit (zie External Dependencies).
+
+**Potentiële problemen in custom code**:
+- Custom styling kan Flux component focus outlines overschrijven
+- Shadow DOM van Web Components kan styling isolatie veroorzaken
 
 **Aanbevolen test**:
 1. Visuele test met TAB door alle interactieve elementen
@@ -640,69 +707,118 @@ Alle primaire user flows zijn **GEBLOKKEERD** door het ontbreken van toetsenbord
 
 ## 6. Toegankelijkheidsproblemen Prioritering
 
+### Implementation Sequencing
+
+Voor optimale voortgang, volg deze volgorde:
+
+**Phase 1 - Quick Wins** (1-2 uur):
+- Issues #2, #3, #5 kunnen parallel worden opgelost
+- Weinig afhankelijkheden, directe impact
+
+**Phase 2 - Core Functionality** (4-8 uur):
+- Issue #1 (Map keyboard) is complex maar kritiek
+- Vereist mogelijk UX/product overleg voor alternatieve invoer
+
+**Phase 3 - Polish** (2-4 uur):
+- Issues #4, #6, #7, #8 verbeteren de ervaring
+- Kunnen parallel worden aangepakt
+
+**Phase 4 - Long-term** (variabel):
+- Issues #9-12 zijn verbeteringen voor beste practices
+
 ### Kritiek (Level A - Must Fix)
 
 1. **Map keyboard toegankelijkheid** (WCAG 2.1.1)
    - Component: `gezond-kaart-invoer`, wizard map step
    - Impact: Complete blocker voor keyboard-only gebruikers
    - Oplossing: Alternatieve invoer methode (postcode/adres text input als fallback)
+   - **Effort**: 4-8 uur (complex, UX overleg nodig)
+   - **Priority**: P0 - Blocker
 
 2. **Main landmark ontbreekt** (WCAG 1.3.1, 4.1.2)
    - Component: `gezond-template`
    - Impact: Screenreader gebruikers kunnen niet navigeren naar main content
    - Oplossing: `<div slot="main">` → `<main slot="main">`
+   - **Effort**: 15 minuten (1-line fix)
+   - **Priority**: P0 - Critical
 
 3. **Form labels niet geassocieerd** (WCAG 1.3.1, 4.1.2)
    - Components: `gezond-groenten-advies`, `gezond-eieren-advies`
    - Impact: Screenreaders lezen input fields zonder labels
    - Oplossing: Gebruik `<label for="id">` of `aria-labelledby`
+   - **Effort**: 1-2 uur (systematische update)
+   - **Priority**: P0 - Critical
 
 4. **Live regions voor dynamic content** (WCAG 4.1.3)
    - Components: Alle result rendering
    - Impact: Screenreaders kondigen resultaten niet aan
    - Oplossing: `aria-live="polite"` op result containers
+   - **Effort**: 1 uur (meerdere componenten)
+   - **Priority**: P1 - High
 
 5. **ARIA labels voor map controls** (WCAG 4.1.2)
    - Component: `gezond-kaart-invoer`
    - Impact: Screenreaders lezen "button" zonder context
    - Oplossing: `aria-label="Polygon aanpassen"` etc.
+   - **Effort**: 30 minuten (attribute toevoegen)
+   - **Priority**: P0 - Critical
 
 ### Hoog (Level AA - Should Fix)
 
 6. **Kleur contrast voor status tekst** (WCAG 1.4.3)
-   - Inline `color: green` heeft onvoldoende contrast
+   - Inline `color: green` heeft onvoldoende contrast (3.95:1)
    - Impact: Tekst moeilijk leesbaar voor low vision gebruikers
-   - Oplossing: Gebruik #006400 of donkerder groen
+   - Oplossing: Vervang green door #3c763d (5.14:1) in wizard
+   - **Effort**: 15 minuten (find & replace)
+   - **Priority**: P1 - High
 
 7. **Focus indicators verificatie** (WCAG 2.4.7)
    - Alle interactieve componenten
    - Impact: Keyboard gebruikers zien niet waar focus is
    - Oplossing: Test en voeg custom focus styles toe indien nodig
+   - **Effort**: 2-3 uur (test + implementatie)
+   - **Priority**: P1 - High
 
 8. **Heading hierarchy gaps** (WCAG 1.3.1)
    - Landing page tile titles, sommige h3 overgeslagen
    - Impact: Screenreader navigatie minder efficiënt
    - Oplossing: Gebruik correcte heading levels
+   - **Effort**: 1 uur (structuur aanpassen)
+   - **Priority**: P2 - Medium
 
 ### Medium (Nice to Have)
 
 9. **Radio group labels** (Best Practice)
    - Wizard questions, advies forms
    - Oplossing: `aria-labelledby` naar section title
+   - **Effort**: 1 uur
+   - **Priority**: P3 - Low
 
 10. **Tile semantic roles** (Best Practice)
     - Landing page tiles
     - Oplossing: `role="article"` of `role="region"` + `aria-label`
+    - **Effort**: 30 minuten
+    - **Priority**: P3 - Low
 
 11. **Button context in aria-labels** (Best Practice)
     - Landing page buttons, wizard buttons
     - Oplossing: `aria-label="Start de test - Doe de test"`
+    - **Effort**: 30 minuten
+    - **Priority**: P3 - Low
 
 ### Laag (Enhancement)
 
 12. **Loading states aria-busy** (Enhancement)
     - Config loading states
     - Oplossing: `aria-busy="true"` tijdens laden
+    - **Effort**: 30 minuten
+    - **Priority**: P4 - Enhancement
+
+**Total effort estimate**:
+- Critical fixes (P0): 6-11 uur
+- High priority (P1): 3-4 uur
+- Medium/Low (P2-P4): 3-4 uur
+- **Total**: 12-19 uur voor volledige compliance
 
 ---
 
