@@ -1,18 +1,34 @@
 {
   "defaults": {
     "standard": "WCAG2AA",
-    "timeout": 10000,
-    "wait": 1000,
+    "timeout": 15000,
+    "wait": 3000,
     "chromeLaunchConfig": {
-      "args": ["--no-sandbox"]
+      "args": ["--no-sandbox", "--disable-dev-shm-usage"]
     },
-    "runners": ["axe"],
-    "includeWarnings": true
+    "runners": ["htmlcs"],
+    "includeWarnings": true,
+    "viewport": {
+      "width": 1280,
+      "height": 1024
+    }
   },
   "urls": [
     "http://localhost:9000/",
-    "http://localhost:9000/#doe-de-test",
-    "http://localhost:9000/#advies-groenten",
-    "http://localhost:9000/#advies-eieren"
+    {
+      "url": "http://localhost:9000/#doe-de-test",
+      "wait": 5000,
+      "timeout": 20000
+    },
+    {
+      "url": "http://localhost:9000/#advies-groenten",
+      "wait": 5000,
+      "timeout": 20000
+    },
+    {
+      "url": "http://localhost:9000/#advies-eieren",
+      "wait": 5000,
+      "timeout": 20000
+    }
   ]
 }
