@@ -93,7 +93,20 @@ export class GezondWizard extends BaseLitElement {
       vlGridStyles,
       vlGroupStyles,
       vlStackedStyles,
-      wizardStyles
+      wizardStyles,
+      css`
+        .visually-hidden {
+          position: absolute;
+          width: 1px;
+          height: 1px;
+          padding: 0;
+          margin: -1px;
+          overflow: hidden;
+          clip: rect(0, 0, 0, 0);
+          white-space: nowrap;
+          border-width: 0;
+        }
+      `
     ];
   }
 
@@ -181,24 +194,29 @@ export class GezondWizard extends BaseLitElement {
         <p>${step.description}</p>
         <p><strong>Zoek eerst je adres</strong> via de zoekbalk, en <strong>teken daarna</strong> de exacte locatie van je moestuin of kippenren door een polygoon te tekenen op de kaart.</p>
         
-        <div class="map-container">
+        <div
+          class="map-container"
+          role="application"
+          aria-label="Interactieve kaart voor locatie selectie">
           <vl-map>
             <vl-map-baselayer-grb-gray></vl-map-baselayer-grb-gray>
             <vl-map-search></vl-map-search>
             <!-- Custom Controls overlay on map -->
              <div style="position: absolute; top: 10px; right: 10px; z-index: 10; display: flex; gap: 10px;">
-               <vl-button 
+               <vl-button
                   id="btn-modify"
-                  icon="pencil" 
-                  @click=${this._toggleEditMode} 
+                  icon="pencil"
+                  aria-label="${this.isEditing ? 'Beëindig bewerkmodus voor getekende locatie' : 'Bewerk getekende locatie'}"
+                  @click=${this._toggleEditMode}
                   ?disabled=${!hasPolygon || this.showDeleteModal}>
                   ${this.isEditing ? 'Klaar met aanpassen' : 'Aanpassen'}
                </vl-button>
-               <vl-button 
+               <vl-button
                   id="btn-delete"
-                  error 
-                  icon="trash" 
-                  @click=${this._requestDeletePolygon} 
+                  error
+                  icon="trash"
+                  aria-label="Verwijder getekende locatie"
+                  @click=${this._requestDeletePolygon}
                   ?disabled=${!hasPolygon || this.isEditing}>
                   Verwijder
                </vl-button>
@@ -221,6 +239,14 @@ export class GezondWizard extends BaseLitElement {
               </vl-map-modify-action>
             </vl-map-features-layer>
           </vl-map>
+
+          <div
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+            class="visually-hidden">
+            ${this._getPolygonStatusMessage()}
+          </div>
         </div>
 
         <vl-modal
@@ -622,6 +648,13 @@ export class GezondWizard extends BaseLitElement {
     this.coordinates = null;
     this.answers = {};
     this.confirmedSteps = new Set();
+  }
+
+  private _getPolygonStatusMessage(): string {
+    if (!this.drawnPolygon) return 'Geen locatie getekend';
+    if (this.isEditing) return 'Locatie wordt bewerkt';
+    if (this.address) return `Locatie getekend: ${this.address}`;
+    return 'Locatie getekend';
   }
 
   private _setEditMode(isEditing: boolean) {

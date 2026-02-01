@@ -98,6 +98,17 @@ export class GezondKaartInvoer extends BaseLitElement {
         .status-success {
           color: #3c763d;
         }
+        .visually-hidden {
+          position: absolute;
+          width: 1px;
+          height: 1px;
+          padding: 0;
+          margin: -1px;
+          overflow: hidden;
+          clip: rect(0, 0, 0, 0);
+          white-space: nowrap;
+          border-width: 0;
+        }
       `
     ];
   }
@@ -129,7 +140,10 @@ export class GezondKaartInvoer extends BaseLitElement {
     const hasFeature = this.drawnFeature !== null;
 
     return html`
-      <div class="map-container">
+      <div
+        class="map-container"
+        role="application"
+        aria-label="Interactieve kaart voor locatie selectie">
         <vl-map>
           <vl-map-baselayer-grb-gray></vl-map-baselayer-grb-gray>
           <vl-map-search></vl-map-search>
@@ -137,14 +151,18 @@ export class GezondKaartInvoer extends BaseLitElement {
           ${this.mode === 'polygon' ? html`
             <div class="map-controls">
               <vl-button
+                id="btn-modify"
                 icon="pencil"
+                aria-label="${this.isEditing ? 'Beëindig bewerkmodus voor getekende locatie' : 'Bewerk getekende locatie'}"
                 @click=${this._toggleEditMode}
                 ?disabled=${!hasFeature || this.showDeleteModal}>
                 ${this.isEditing ? 'Klaar' : 'Aanpassen'}
               </vl-button>
               <vl-button
+                id="btn-delete"
                 error
                 icon="trash"
+                aria-label="Verwijder getekende locatie"
                 @click=${this._requestDelete}
                 ?disabled=${!hasFeature || this.isEditing}>
                 Verwijder
@@ -153,8 +171,10 @@ export class GezondKaartInvoer extends BaseLitElement {
           ` : hasFeature ? html`
             <div class="map-controls">
               <vl-button
+                id="btn-delete"
                 error
                 icon="trash"
+                aria-label="Verwijder getekende locatie"
                 @click=${this._confirmDelete}>
                 Verwijder
               </vl-button>
@@ -192,6 +212,14 @@ export class GezondKaartInvoer extends BaseLitElement {
             ` : ''}
           </vl-map-features-layer>
         </vl-map>
+
+        <div
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+          class="visually-hidden">
+          ${this._getStatusMessage()}
+        </div>
       </div>
 
       ${this.mode === 'polygon' ? html`
@@ -304,6 +332,13 @@ export class GezondKaartInvoer extends BaseLitElement {
       return '(' + ring.map(c => `${c[0]} ${c[1]}`).join(', ') + ')';
     }).join(', ');
     return `POLYGON(${rings})`;
+  }
+
+  private _getStatusMessage(): string {
+    if (!this.drawnFeature) return 'Geen locatie getekend';
+    if (this.isEditing) return 'Locatie wordt bewerkt';
+    if (this.address) return `Locatie getekend: ${this.address}`;
+    return 'Locatie getekend';
   }
 
   private _toggleEditMode() {
