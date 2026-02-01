@@ -95,7 +95,13 @@ export class GezondTemplate extends BaseLitElement {
           display: block;
         }
 
-        [slot='main'] {
+        header,
+        main,
+        footer {
+          display: block;
+        }
+
+        main {
           min-height: calc(90vh - (var(--header-height) + var(--footer-height)));
         }
 
@@ -147,11 +153,13 @@ export class GezondTemplate extends BaseLitElement {
           return nothing;
       }
       return html`
-          <vl-breadcrumb slot="sub-header">
-              ${this.breadcrumbs.map(item => html`
-                  <vl-breadcrumb-item href="${item.href || nothing}">${item.title}</vl-breadcrumb-item>
-              `)}
-          </vl-breadcrumb>
+          <nav aria-label="Broodkruimelnavigatie" slot="sub-header">
+              <vl-breadcrumb>
+                  ${this.breadcrumbs.map(item => html`
+                      <vl-breadcrumb-item href="${item.href || nothing}">${item.title}</vl-breadcrumb-item>
+                  `)}
+              </vl-breadcrumb>
+          </nav>
       `;
   }
 
@@ -160,12 +168,16 @@ export class GezondTemplate extends BaseLitElement {
       <a href="#main" class="skip-link">Spring naar hoofdinhoud</a>
       ${this.renderToaster()}
       <vl-template>
-        ${this.renderHeader()}
-        ${this.renderFunctionalHeader()}
-        <div slot="main" id="main" tabindex="-1">
+        <header role="banner">
+          ${this.renderHeader()}
+          ${this.renderFunctionalHeader()}
+        </header>
+        <main role="main" id="main" tabindex="-1">
           <slot></slot>
-        </div>
-        ${this.renderFooter()}
+        </main>
+        <footer role="contentinfo">
+          ${this.renderFooter()}
+        </footer>
       </vl-template>
     `;
   }

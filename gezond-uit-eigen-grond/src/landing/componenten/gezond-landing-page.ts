@@ -32,7 +32,7 @@ export class GezondLandingPage extends BaseLitElement {
     {
       id: 'advies-eieren',
       title: 'Advies eieren',
-      description: 'Je hebt labo-resultaten voor dioxines en PCB\'s? Vul de gemeten waarden in en ontdek hoeveel eieren van je eigen kippen je veilig kan eten.',
+      description: 'Je hebt labo-resultaten voor dioxines en PCB\'s? Vul de gemeten waarden in en ontdek hoeveel eieren van je eigen kippen uit je tuin je veilig kan eten.',
       buttonLabel: 'Vraag advies',
       route: '#advies-eieren'
     }
@@ -72,6 +72,17 @@ export class GezondLandingPage extends BaseLitElement {
           height: 100%;
           width: 100%;
         }
+        .visually-hidden {
+          position: absolute;
+          width: 1px;
+          height: 1px;
+          margin: -1px;
+          padding: 0;
+          overflow: hidden;
+          clip: rect(0, 0, 0, 0);
+          white-space: nowrap;
+          border: 0;
+        }
       `
     ];
   }
@@ -87,7 +98,7 @@ export class GezondLandingPage extends BaseLitElement {
         </ul>
       </div>
 
-      <div class="tiles-grid">
+      <div class="tiles-grid" role="list">
         ${this.tiles.map(tile => this._renderTile(tile))}
       </div>
     `;
@@ -95,12 +106,19 @@ export class GezondLandingPage extends BaseLitElement {
 
   private _renderTile(tile: TileConfig): TemplateResult {
     return html`
-      <div class="tile-wrapper">
+      <div class="tile-wrapper" role="listitem">
         <vl-info-tile>
-          <span slot="title">${tile.title}</span>
+          <span slot="title">
+            <span class="visually-hidden">Optie ${this.tiles.indexOf(tile) + 1}: </span>
+            ${tile.title}
+          </span>
           <span slot="content">${tile.description}</span>
           <div slot="footer">
-            <vl-button @click=${() => this._navigateTo(tile.route)}>${tile.buttonLabel}</vl-button>
+            <vl-button
+              @click=${() => this._navigateTo(tile.route)}
+              aria-label="${tile.buttonLabel} voor ${tile.title}">
+              ${tile.buttonLabel}
+            </vl-button>
           </div>
         </vl-info-tile>
       </div>
