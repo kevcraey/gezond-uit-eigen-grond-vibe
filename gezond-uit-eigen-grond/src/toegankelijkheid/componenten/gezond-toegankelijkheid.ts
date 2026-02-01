@@ -5,6 +5,10 @@ import { TemplateResult, html, css } from 'lit';
 registerWebComponents([VlTitleComponent]);
 
 export class GezondToegankelijkheid extends BaseLitElement {
+  // Date properties for easier maintenance
+  private declarationDate = '31 januari 2026';
+  private lastReviewDate = '31 januari 2026';
+
   static get styles() {
     return [
       css`
@@ -26,6 +30,19 @@ export class GezondToegankelijkheid extends BaseLitElement {
           padding: 1rem;
           border-left: 4px solid #0055CC;
           margin: 1rem 0;
+        }
+        dl {
+          margin: 0;
+        }
+        dt {
+          font-weight: bold;
+          margin-top: 0.5rem;
+        }
+        dt:first-child {
+          margin-top: 0;
+        }
+        dd {
+          margin: 0.25rem 0 0 0;
         }
       `
     ];
@@ -86,8 +103,8 @@ export class GezondToegankelijkheid extends BaseLitElement {
 
       <section>
         <vl-title type="h2">Opstelling van deze toegankelijkheidsverklaring</vl-title>
-        <p>Deze verklaring werd opgesteld op <strong>31 januari 2026</strong>.</p>
-        <p>De verklaring werd herzien op <strong>31 januari 2026</strong>.</p>
+        <p>Deze verklaring werd opgesteld op <strong>${this.declarationDate}</strong>.</p>
+        <p>De verklaring werd herzien op <strong>${this.lastReviewDate}</strong>.</p>
         <p>Deze verklaring is opgesteld op basis van een zelf-evaluatie door Departement Omgeving.</p>
       </section>
 
@@ -96,8 +113,12 @@ export class GezondToegankelijkheid extends BaseLitElement {
         <p>Als u toegankelijkheidsproblemen ervaart bij het gebruik van deze website, contacteer ons dan:</p>
 
         <div class="contact-info">
-          <p><strong>E-mail</strong>: info@omgeving.vlaanderen.be</p>
-          <p><strong>Telefoon</strong>: 1700</p>
+          <dl>
+            <dt>E-mail</dt>
+            <dd><a href="mailto:info@omgeving.vlaanderen.be">info@omgeving.vlaanderen.be</a></dd>
+            <dt>Telefoon</dt>
+            <dd><a href="tel:1700">1700</a></dd>
+          </dl>
         </div>
 
         <p>We streven ernaar om binnen 14 dagen te reageren op uw melding.</p>
@@ -110,7 +131,7 @@ export class GezondToegankelijkheid extends BaseLitElement {
           van deze website, kan u terecht bij:
         </p>
         <p><strong>Raad voor het Milieurecht</strong><br>
-        <a href="https://www.minaraad.be" target="_blank" rel="noopener noreferrer">www.minaraad.be</a></p>
+        <a href="https://www.minaraad.be" target="_blank" rel="noopener noreferrer" aria-label="Raad voor het Milieurecht (opent in nieuw venster)">www.minaraad.be</a></p>
       </section>
 
       <section>
