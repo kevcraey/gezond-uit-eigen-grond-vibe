@@ -113,6 +113,35 @@ export class GezondTemplate extends BaseLitElement {
           margin-right: auto;
           top: auto !important;
         }
+
+        .custom-footer-links {
+          background: #f7f9fc;
+          padding: 1rem 0;
+          border-top: 1px solid #cbd2da;
+        }
+
+        .custom-footer-links nav {
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 0 1rem;
+        }
+
+        .custom-footer-links ul {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+          display: flex;
+          gap: 2rem;
+        }
+
+        .custom-footer-links a {
+          color: #333;
+          text-decoration: none;
+        }
+
+        .custom-footer-links a:hover {
+          text-decoration: underline;
+        }
       `,
     ];
   }
@@ -131,7 +160,18 @@ export class GezondTemplate extends BaseLitElement {
   private renderFooter() {
     return this.footerUuid == null
       ? nothing
-      : html` <vl-footer slot="footer" identifier=${this.footerUuid} ?development=${this.developmentMode}></vl-footer>`;
+      : html`
+        <div slot="footer">
+          <vl-footer identifier=${this.footerUuid} ?development=${this.developmentMode}></vl-footer>
+          <div class="custom-footer-links">
+            <nav aria-label="Secundaire navigatie">
+              <ul>
+                <li><a href="#toegankelijkheid">Toegankelijkheidsverklaring</a></li>
+              </ul>
+            </nav>
+          </div>
+        </div>
+      `;
   }
 
   private renderFunctionalHeader() {
