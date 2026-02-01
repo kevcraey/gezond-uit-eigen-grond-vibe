@@ -31,7 +31,6 @@ registerWebComponents([
 
 export class GezondGroentenAdvies extends BaseLitElement {
   @state() private config: AdviesConfig | null = null;
-  @state() private activeStep: number = 1;
 
   // Stap 1: Locatie
   @state() private locationData: LocationChangedEvent | null = null;
@@ -44,6 +43,9 @@ export class GezondGroentenAdvies extends BaseLitElement {
   @state() private adviesKleur: AdviesKleur | null = null;
   @state() private cdAdviesNiveau: string | null = null;
 
+  // Validatie
+  @state() private errors: { [key: string]: string } = {};
+
   @query('gezond-kaart-invoer') private kaartInvoer!: GezondKaartInvoer;
 
   static get styles() {
@@ -54,6 +56,12 @@ export class GezondGroentenAdvies extends BaseLitElement {
         :host {
           display: block;
         }
+        .content-section {
+          margin-bottom: 3rem;
+        }
+        
+        /* Custom Alert Colors are injected via JS to penetrate Shadow DOM */
+
         .form-group {
           margin-bottom: 1.5rem;
         }
@@ -74,15 +82,6 @@ export class GezondGroentenAdvies extends BaseLitElement {
           color: #666;
           margin-top: 0.25rem;
         }
-        .result-card {
-          padding: 1.5rem;
-          border-radius: 8px;
-          margin-bottom: 1rem;
-        }
-        .result-card.groen { background: #dff0d8; border: 1px solid #3c763d; }
-        .result-card.geel { background: #fcf8e3; border: 1px solid #8a6d3b; }
-        .result-card.oranje { background: #f2dede; border: 1px solid #a94442; }
-        .result-card.rood { background: #f2dede; border: 2px solid #a94442; }
         .tips-list {
           margin-top: 1rem;
           padding-left: 1.5rem;
@@ -94,10 +93,13 @@ export class GezondGroentenAdvies extends BaseLitElement {
           border: 1px solid #ffc107;
           border-radius: 4px;
         }
-        .wizard-actions {
+        .actions {
           display: flex;
           gap: 1rem;
           margin-top: 2rem;
+        }
+        .result-section {
+          scroll-margin-top: 2rem;
         }
       `
     ];
@@ -122,53 +124,45 @@ export class GezondGroentenAdvies extends BaseLitElement {
       return html`<p>Laden...</p>`;
     }
 
+    const heeftTuinType = this.tuinType !== '';
+    const heeftMinstensEenWaarde = this.config.groenten.stoffen.some(
+      s => this.waarden[s.id] !== null && this.waarden[s.id] !== undefined
+    );
+    const alleVeldenIngevuld = this.locationData?.postcode && heeftTuinType && heeftMinstensEenWaarde;
+
     return html`
       <vl-title type="h1">Advies groenten</vl-title>
       <p>Bereken op basis van je labo-resultaten of je veilig groenten kan kweken in je moestuin.</p>
 
-      <vl-wizard .activeStep=${this.activeStep} numeric>
-        ${this._renderStap1()}
-        ${this._renderStap2()}
-        ${this._renderStap3()}
-      </vl-wizard>
-    `;
-  }
-
-  private _renderStap1(): TemplateResult {
-    return html`
-      <vl-wizard-pane name="Locatie">
-        <vl-title type="h2">Stap 1: Locatie</vl-title>
+      <div class="content-section">
+        <vl-title type="h2">1. Locatie</vl-title>
         <p>Selecteer de locatie van je moestuin op de kaart. We gebruiken dit om je postcode te bepalen.</p>
+
+        ${this.errors['locatie'] ? html`
+          <vl-alert type="error" icon="alert-triangle" role="alert">
+            ${this.errors['locatie']}
+          </vl-alert>
+        ` : nothing}
 
         <gezond-kaart-invoer
           mode="polygon"
           instructie="Zoek eerst je adres via de zoekbalk, en teken daarna de exacte locatie van je moestuin."
           @location-changed=${this._handleLocationChanged}>
         </gezond-kaart-invoer>
+      </div>
 
-        <div class="wizard-actions">
-          <vl-button secondary @click=${this._naarLanding}>Terug naar overzicht</vl-button>
-          <vl-button @click=${this._naarStap2} ?disabled=${!this.locationData?.postcode}>Volgende</vl-button>
-        </div>
-      </vl-wizard-pane>
-    `;
-  }
-
-  private _renderStap2(): TemplateResult {
-    if (!this.config) return html``;
-
-    const heeftTuinType = this.tuinType !== '';
-    const heeftMinstensEenWaarde = this.config.groenten.stoffen.some(
-      s => this.waarden[s.id] !== null && this.waarden[s.id] !== undefined
-    );
-    const alleVeldenIngevuld = heeftTuinType && heeftMinstensEenWaarde;
-
-    return html`
-      <vl-wizard-pane name="Gegevens">
-        <vl-title type="h2">Stap 2: Gegevens invoeren</vl-title>
+      <div class="content-section">
+        <vl-title type="h2">2. Gegevens invoeren</vl-title>
 
         <div class="form-group">
           <vl-title type="h4">Soort tuin</vl-title>
+
+          ${this.errors['tuinType'] ? html`
+            <vl-alert type="error" icon="alert-triangle" role="alert">
+              ${this.errors['tuinType']}
+            </vl-alert>
+          ` : nothing}
+
           <vl-radio-group block>
             ${this.config.groenten.tuinTypes.map(type => html`
               <vl-radio
@@ -185,31 +179,43 @@ export class GezondGroentenAdvies extends BaseLitElement {
           <vl-title type="h4">Labo-resultaten</vl-title>
           <p>Vul de gemeten waarden in uit je labo-rapport. Laat velden leeg als je geen waarde hebt.</p>
 
+          ${this.errors['waarden'] ? html`
+            <vl-alert type="error" icon="alert-triangle" role="alert">
+              ${this.errors['waarden']}
+            </vl-alert>
+          ` : nothing}
+
           <div class="stoffen-grid">
             ${this.config.groenten.stoffen.map(stof => html`
               <div class="stof-input">
-                <label>${stof.naam} (${stof.id})</label>
+                <vl-form-label for="input-${stof.id}">
+                  ${stof.naam} (${stof.id})
+                </vl-form-label>
                 <vl-input-field
+                  id="input-${stof.id}"
                   type="number"
                   step="0.1"
+                  aria-describedby="hint-${stof.id}"
                   .value=${this.waarden[stof.id]?.toString() || ''}
                   @input=${(e: Event) => this._handleStofInput(stof.id, e)}>
                 </vl-input-field>
-                <small>${stof.eenheid}</small>
+                <small id="hint-${stof.id}">${stof.eenheid}</small>
               </div>
             `)}
           </div>
         </div>
 
-        <div class="wizard-actions">
-          <vl-button secondary @click=${this._naarStap1}>Terug</vl-button>
+        <div class="actions">
           <vl-button @click=${this._berekenAdvies} ?disabled=${!alleVeldenIngevuld}>Bereken advies</vl-button>
+          ${this.adviesKleur ? html`<vl-button secondary @click=${this._reset}>Opnieuw beginnen</vl-button>` : nothing}
         </div>
-      </vl-wizard-pane>
+      </div>
+
+      ${this.adviesKleur ? this._renderResultaat() : nothing}
     `;
   }
 
-  private _renderStap3(): TemplateResult {
+  private _renderResultaat(): TemplateResult {
     if (!this.config || !this.adviesKleur) return html``;
 
     const advies = this.config.groenten.adviezen[this.adviesKleur];
@@ -217,31 +223,59 @@ export class GezondGroentenAdvies extends BaseLitElement {
     const isInCdRegio = this.locationData?.postcode &&
       this.config.groenten.cdUitzonderingPostcodes.includes(this.locationData.postcode);
 
+    // Map kleuren naar alert types en classes
+    let alertType = 'success';
+    let alertClass = '';
+    let icon = 'check-circle';
+
+    switch (this.adviesKleur) {
+      case 'groen':
+        alertType = 'success';
+        icon = 'check-circle';
+        break;
+      case 'geel':
+        alertType = 'warning';
+        alertClass = 'alert-geel';
+        icon = 'alert-circle';
+        break;
+      case 'oranje':
+        alertType = 'warning';
+        alertClass = 'alert-oranje';
+        icon = 'alert-triangle';
+        break;
+      case 'rood':
+        alertType = 'error';
+        icon = 'alert-triangle';
+        break;
+    }
+
     return html`
-      <vl-wizard-pane name="Resultaat">
-        <vl-title type="h2">Stap 3: Je advies</vl-title>
+      <div class="content-section result-section" id="resultaat">
+        <vl-title type="h2">3. Je advies</vl-title>
 
         ${this.locationData?.address ? html`
           <p><strong>Locatie:</strong> ${this.locationData.address}</p>
         ` : nothing}
 
-        <div class="result-card ${this.adviesKleur}">
-          <vl-title type="h3">${advies.titel}</vl-title>
-          <p>${advies.tekst}</p>
+        <vl-alert type="${alertType}" icon="${icon}" class="${alertClass}">
+          <span slot="title">${advies.titel}</span>
+          <div>
+            <p>${advies.tekst}</p>
 
-          ${advies.tips && advies.tips.length > 0 ? html`
-            <vl-title type="h4">Tips</vl-title>
-            <ul class="tips-list">
-              ${advies.tips.map(tip => html`<li>${tip}</li>`)}
-            </ul>
-          ` : nothing}
+            ${advies.tips && advies.tips.length > 0 ? html`
+              <p><strong>Tips:</strong></p>
+              <ul class="tips-list">
+                ${advies.tips.map(tip => html`<li>${tip}</li>`)}
+              </ul>
+            ` : nothing}
 
-          ${advies.contact ? html`
-            <p style="margin-top: 1rem;">
-              <strong>Contact:</strong> ${advies.contact.email} of ${advies.contact.telefoon}
-            </p>
-          ` : nothing}
-        </div>
+            ${advies.contact ? html`
+              <p style="margin-top: 1rem;">
+                <strong>Contact:</strong> ${advies.contact.email} of ${advies.contact.telefoon}
+              </p>
+            ` : nothing}
+          </div>
+        </vl-alert>
 
         ${cdAdvies && isInCdRegio ? html`
           <div class="cd-advies">
@@ -250,13 +284,7 @@ export class GezondGroentenAdvies extends BaseLitElement {
             <p>${cdAdvies.tekst}</p>
           </div>
         ` : nothing}
-
-        <div class="wizard-actions">
-          <vl-button secondary @click=${this._naarStap2}>Terug</vl-button>
-          <vl-button @click=${this._naarLanding}>Terug naar overzicht</vl-button>
-          <vl-button secondary @click=${this._reset}>Opnieuw beginnen</vl-button>
-        </div>
-      </vl-wizard-pane>
+      </div>
     `;
   }
 
@@ -270,8 +298,40 @@ export class GezondGroentenAdvies extends BaseLitElement {
     this.waarden = { ...this.waarden, [stofId]: value };
   }
 
+  private _validate(): boolean {
+    this.errors = {};
+
+    if (!this.locationData?.postcode) {
+      this.errors['locatie'] = 'Selecteer een locatie op de kaart';
+    }
+
+    if (!this.tuinType) {
+      this.errors['tuinType'] = 'Selecteer een soort tuin';
+    }
+
+    const heeftWaarden = this.config?.groenten.stoffen.some(
+      s => this.waarden[s.id] !== null && this.waarden[s.id] !== undefined
+    );
+
+    if (!heeftWaarden) {
+      this.errors['waarden'] = 'Vul minimaal één labo-resultaat in';
+    }
+
+    return Object.keys(this.errors).length === 0;
+  }
+
   private _berekenAdvies() {
     if (!this.config || !this.locationData) return;
+
+    if (!this._validate()) {
+      // Focus eerste error
+      const firstErrorKey = Object.keys(this.errors)[0];
+      const errorElement = this.shadowRoot?.querySelector(`[id*="${firstErrorKey}"]`);
+      if (errorElement instanceof HTMLElement) {
+        errorElement.focus();
+      }
+      return;
+    }
 
     const invoer: GroentenInvoer = {
       tuinType: this.tuinType,
@@ -282,31 +342,71 @@ export class GezondGroentenAdvies extends BaseLitElement {
     this.adviesKleur = bepaalGroentenAdvies(invoer, this.config.groenten);
     this.cdAdviesNiveau = bepaalCdAdviesNiveau(this.waarden['Cd']);
 
-    this.activeStep = 3;
-  }
-
-  private _naarStap1() {
-    this.activeStep = 1;
-  }
-
-  private _naarStap2() {
-    this.activeStep = 2;
-  }
-
-  private _naarLanding() {
-    window.location.hash = '';
+    // Scroll naar resultaat
+    setTimeout(() => {
+      const resultElement = this.shadowRoot?.getElementById('resultaat');
+      if (resultElement) {
+        resultElement.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 100);
   }
 
   private _reset() {
-    this.activeStep = 1;
     this.locationData = null;
     this.tuinType = '';
     this.waarden = {};
     this.adviesKleur = null;
     this.cdAdviesNiveau = null;
+    this.errors = {};
     if (this.kaartInvoer) {
       this.kaartInvoer.reset();
     }
+    // Scroll naar boven
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  updated(changedProperties: any) {
+    super.updated(changedProperties);
+    this._injectAlertStyles();
+  }
+
+  private _injectAlertStyles() {
+    const alerts = this.shadowRoot?.querySelectorAll('vl-alert');
+    alerts?.forEach(alert => {
+      // Check if we can access the shadowRoot (it should be open for LitElements)
+      if (alert.shadowRoot && !alert.shadowRoot.querySelector('style#custom-alert-styles')) {
+        const style = document.createElement('style');
+        style.id = 'custom-alert-styles';
+        style.textContent = `
+          :host(.alert-geel) .vl-alert {
+            background-color: #fff3cd !important;
+            border-color: #ffeeba !important;
+            color: #856404 !important;
+          }
+          :host(.alert-geel) .vl-icon::before {
+             color: #856404 !important;
+          }
+          :host(.alert-geel) .vl-alert__title, 
+          :host(.alert-geel) .vl-alert__message {
+             color: #856404 !important;
+          }
+
+          :host(.alert-oranje) .vl-alert {
+            background-color: #ffe8cc !important;
+            border-color: #ffd699 !important;
+            color: #cc5200 !important;
+          }
+          :host(.alert-oranje) .vl-icon::before {
+             color: #cc5200 !important;
+          }
+          :host(.alert-oranje) .vl-alert__title,
+          :host(.alert-oranje) .vl-alert__message {
+             color: #cc5200 !important;
+          }
+        `;
+        alert.shadowRoot.appendChild(style);
+      }
+    });
   }
 }
 

@@ -1,7 +1,6 @@
 import { BaseLitElement, defineWebComponent, registerWebComponents } from '@domg-wc/common';
 import { VlButtonComponent, VlTitleComponent } from '@domg-wc/components/atom';
 import { VlAlert } from '@domg-wc/components/block/alert';
-import { VlWizard, VlWizardPane } from '@domg-wc/components/block/wizard';
 import { VlFormLabelComponent, VlInputFieldComponent } from '@domg-wc/components/form';
 import { VlRadioComponent, VlRadioGroupComponent } from '@domg-wc/components/form/radio-group';
 import { vlGridStyles, vlStackedStyles } from '@domg-wc/styles';
@@ -15,8 +14,6 @@ registerWebComponents([
   VlButtonComponent,
   VlTitleComponent,
   VlAlert,
-  VlWizard,
-  VlWizardPane,
   VlFormLabelComponent,
   VlInputFieldComponent,
   VlRadioGroupComponent,
@@ -25,7 +22,6 @@ registerWebComponents([
 
 export class GezondEierenAdvies extends BaseLitElement {
   @state() private config: AdviesConfig | null = null;
-  @state() private activeStep: number = 1;
 
   // Stap 1: Locatie
   @state() private locationData: LocationChangedEvent | null = null;
@@ -38,6 +34,9 @@ export class GezondEierenAdvies extends BaseLitElement {
   // Stap 3: Resultaat
   @state() private adviesId: string | null = null;
 
+  // Validatie
+  @state() private errors: { [key: string]: string } = {};
+
   @query('gezond-kaart-invoer') private kaartInvoer!: GezondKaartInvoer;
 
   static get styles() {
@@ -47,6 +46,12 @@ export class GezondEierenAdvies extends BaseLitElement {
       css`
         :host {
           display: block;
+        }
+        
+        /* Custom Alert Colors are injected via JS to penetrate Shadow DOM */
+
+        .content-section {
+          margin-bottom: 3rem;
         }
         .form-group {
           margin-bottom: 1.5rem;
@@ -68,15 +73,6 @@ export class GezondEierenAdvies extends BaseLitElement {
           color: #666;
           margin-top: 0.25rem;
         }
-        .result-card {
-          padding: 1.5rem;
-          border-radius: 8px;
-          margin-bottom: 1rem;
-        }
-        .result-card.groen { background: #dff0d8; border: 1px solid #3c763d; }
-        .result-card.geel { background: #fcf8e3; border: 1px solid #8a6d3b; }
-        .result-card.oranje { background: #f2dede; border: 1px solid #a94442; }
-        .result-card.rood { background: #f2dede; border: 2px solid #a94442; }
         .leeftijds-tabel {
           margin-top: 1rem;
           border-collapse: collapse;
@@ -95,10 +91,13 @@ export class GezondEierenAdvies extends BaseLitElement {
           margin-top: 1rem;
           padding-left: 1.5rem;
         }
-        .wizard-actions {
+        .actions {
           display: flex;
           gap: 1rem;
           margin-top: 2rem;
+        }
+        .result-section {
+          scroll-margin-top: 2rem;
         }
       `
     ];
@@ -123,51 +122,44 @@ export class GezondEierenAdvies extends BaseLitElement {
       return html`<p>Laden...</p>`;
     }
 
+    const alleVeldenIngevuld = this.locationData && 
+      this.eetGroenten !== null &&
+      this.pcddF !== null && this.dioxPCB !== null;
+
     return html`
       <vl-title type="h1">Advies eieren</vl-title>
       <p>Bereken op basis van je labo-resultaten hoeveel eieren van je eigen kippen je veilig kan eten.</p>
 
-      <vl-wizard .activeStep=${this.activeStep} numeric>
-        ${this._renderStap1()}
-        ${this._renderStap2()}
-        ${this._renderStap3()}
-      </vl-wizard>
-    `;
-  }
-
-  private _renderStap1(): TemplateResult {
-    return html`
-      <vl-wizard-pane name="Locatie">
-        <vl-title type="h2">Stap 1: Locatie</vl-title>
+      <div class="content-section">
+        <vl-title type="h2">1. Locatie</vl-title>
         <p>Selecteer de locatie van je kippenren op de kaart.</p>
+
+        ${this.errors['locatie'] ? html`
+          <vl-alert type="error" icon="alert-triangle" role="alert">
+            ${this.errors['locatie']}
+          </vl-alert>
+        ` : nothing}
 
         <gezond-kaart-invoer
           mode="polygon"
           instructie="Zoek eerst je adres via de zoekbalk, en teken daarna de exacte locatie van je kippenren."
           @location-changed=${this._handleLocationChanged}>
         </gezond-kaart-invoer>
+      </div>
 
-        <div class="wizard-actions">
-          <vl-button secondary @click=${this._naarLanding}>Terug naar overzicht</vl-button>
-          <vl-button @click=${this._naarStap2} ?disabled=${!this.locationData}>Volgende</vl-button>
-        </div>
-      </vl-wizard-pane>
-    `;
-  }
-
-  private _renderStap2(): TemplateResult {
-    if (!this.config) return html``;
-
-    const alleVeldenIngevuld = this.eetGroenten !== null &&
-      this.pcddF !== null && this.dioxPCB !== null;
-
-    return html`
-      <vl-wizard-pane name="Gegevens">
-        <vl-title type="h2">Stap 2: Gegevens invoeren</vl-title>
-
+      <div class="content-section">
+        <vl-title type="h2">2. Gegevens invoeren</vl-title>
+        
         <div class="form-group">
           <vl-title type="h4">Eet je ook groenten uit eigen tuin?</vl-title>
           <p>Dit is belangrijk omdat de totale blootstelling aan dioxines en PCB's afhangt van je volledige voeding.</p>
+
+          ${this.errors['eetGroenten'] ? html`
+            <vl-alert type="error" icon="alert-triangle" role="alert">
+              ${this.errors['eetGroenten']}
+            </vl-alert>
+          ` : nothing}
+
           <vl-radio-group block>
             <vl-radio
               value="true"
@@ -188,99 +180,129 @@ export class GezondEierenAdvies extends BaseLitElement {
           <vl-title type="h4">Labo-resultaten</vl-title>
           <p>Vul de gemeten waarden in uit je labo-rapport.</p>
 
+          ${this.errors['waarden'] ? html`
+            <vl-alert type="error" icon="alert-triangle" role="alert">
+              ${this.errors['waarden']}
+            </vl-alert>
+          ` : nothing}
+
           <div class="stoffen-inputs">
             <div class="stof-input">
-              <label>PCDD/F's</label>
+              <vl-form-label for="input-pcdd-f">PCDD/F's</vl-form-label>
               <vl-input-field
+                id="input-pcdd-f"
                 type="number"
                 step="0.01"
+                aria-describedby="hint-pcdd-f"
                 .value=${this.pcddF?.toString() || ''}
                 @input=${(e: Event) => this._handlePcddInput(e)}>
               </vl-input-field>
-              <small>ng/kg ds</small>
+              <small id="hint-pcdd-f">ng/kg ds</small>
             </div>
             <div class="stof-input">
-              <label>Dioxineachtige PCB's</label>
+              <vl-form-label for="input-diox-pcb">Dioxineachtige PCB's</vl-form-label>
               <vl-input-field
+                id="input-diox-pcb"
                 type="number"
                 step="0.01"
+                aria-describedby="hint-diox-pcb"
                 .value=${this.dioxPCB?.toString() || ''}
                 @input=${(e: Event) => this._handleDioxInput(e)}>
               </vl-input-field>
-              <small>ng/kg ds</small>
+              <small id="hint-diox-pcb">ng/kg ds</small>
             </div>
           </div>
         </div>
 
-        <div class="wizard-actions">
-          <vl-button secondary @click=${this._naarStap1}>Terug</vl-button>
+        <div class="actions">
           <vl-button @click=${this._berekenAdvies} ?disabled=${!alleVeldenIngevuld}>Bereken advies</vl-button>
+          ${this.adviesId ? html`<vl-button secondary @click=${this._reset}>Opnieuw beginnen</vl-button>` : nothing}
         </div>
-      </vl-wizard-pane>
+      </div>
+
+      ${this.adviesId ? this._renderResultaat() : nothing}
     `;
   }
 
-  private _renderStap3(): TemplateResult {
+  private _renderResultaat(): TemplateResult {
     if (!this.config || !this.adviesId) return html``;
 
     const advies = this.config.eieren.adviezen[this.adviesId];
     const leeftijdsAdvies = this.config.eieren.leeftijdsadvies[this.adviesId];
 
+    // Map adviesId naar alert types en classes
+    let alertType = 'success';
+    let alertClass = '';
+    let icon = 'check-circle';
+
+    if (this.adviesId === '3eieren') {
+      alertType = 'success';
+      icon = 'check-circle';
+    } else if (this.adviesId === '2eieren') {
+      alertType = 'warning';
+      alertClass = 'alert-geel';
+      icon = 'alert-circle';
+    } else if (this.adviesId === '1ei') {
+      alertType = 'warning';
+      alertClass = 'alert-oranje';
+      icon = 'alert-triangle';
+    } else {
+      alertType = 'error';
+      icon = 'alert-triangle';
+    }
+
     return html`
-      <vl-wizard-pane name="Resultaat">
-        <vl-title type="h2">Stap 3: Je advies</vl-title>
+      <div class="content-section result-section" id="resultaat">
+        <vl-title type="h2">3. Je advies</vl-title>
 
         ${this.locationData?.address ? html`
           <p><strong>Locatie:</strong> ${this.locationData.address}</p>
         ` : nothing}
 
-        <div class="result-card ${advies.kleur}">
-          <vl-title type="h3">${advies.titel}</vl-title>
-          <p>${advies.tekst}</p>
+        <vl-alert type="${alertType}" icon="${icon}" class="${alertClass}">
+          <span slot="title">${advies.titel}</span>
+          <div>
+            <p>${advies.tekst}</p>
 
-          <vl-title type="h4">Aanbevolen hoeveelheid per leeftijd</vl-title>
-          <table class="leeftijds-tabel">
-            <thead>
-              <tr>
-                <th>Leeftijdsgroep</th>
-                <th>Maximum aantal eieren</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Volwassenen (> 12 jaar)</td>
-                <td>${leeftijdsAdvies.volwassenen}</td>
-              </tr>
-              <tr>
-                <td>Kinderen 6-12 jaar</td>
-                <td>${leeftijdsAdvies.kinderen6tot12}</td>
-              </tr>
-              <tr>
-                <td>Kinderen &lt; 6 jaar</td>
-                <td>${leeftijdsAdvies.kinderenOnder6}</td>
-              </tr>
-            </tbody>
-          </table>
+            <vl-title type="h4">Aanbevolen hoeveelheid per leeftijd</vl-title>
+            <table class="leeftijds-tabel">
+              <thead>
+                <tr>
+                  <th>Leeftijdsgroep</th>
+                  <th>Maximum aantal eieren</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Volwassenen (> 12 jaar)</td>
+                  <td>${leeftijdsAdvies.volwassenen}</td>
+                </tr>
+                <tr>
+                  <td>Kinderen 6-12 jaar</td>
+                  <td>${leeftijdsAdvies.kinderen6tot12}</td>
+                </tr>
+                <tr>
+                  <td>Kinderen &lt; 6 jaar</td>
+                  <td>${leeftijdsAdvies.kinderenOnder6}</td>
+                </tr>
+              </tbody>
+            </table>
 
-          ${advies.tips && advies.tips.length > 0 ? html`
-            <vl-title type="h4">Tips</vl-title>
-            <ul class="tips-list">
-              ${advies.tips.map(tip => html`<li>${tip}</li>`)}
-            </ul>
-          ` : nothing}
-        </div>
-
-        <div class="wizard-actions">
-          <vl-button secondary @click=${this._naarStap2}>Terug</vl-button>
-          <vl-button @click=${this._naarLanding}>Terug naar overzicht</vl-button>
-          <vl-button secondary @click=${this._reset}>Opnieuw beginnen</vl-button>
-        </div>
-      </vl-wizard-pane>
+            ${advies.tips && advies.tips.length > 0 ? html`
+              <p style="margin-top: 1rem;"><strong>Tips:</strong></p>
+              <ul class="tips-list">
+                ${advies.tips.map(tip => html`<li>${tip}</li>`)}
+              </ul>
+            ` : nothing}
+          </div>
+        </vl-alert>
+      </div>
     `;
   }
 
   private _handleLocationChanged(e: CustomEvent<LocationChangedEvent>) {
     this.locationData = e.detail;
+
   }
 
   private _handlePcddInput(e: Event) {
@@ -293,8 +315,36 @@ export class GezondEierenAdvies extends BaseLitElement {
     this.dioxPCB = input.value ? parseFloat(input.value) : null;
   }
 
+  private _validate(): boolean {
+    this.errors = {};
+
+    if (!this.locationData?.postcode) {
+      this.errors['locatie'] = 'Selecteer een locatie op de kaart';
+    }
+
+    if (this.eetGroenten === null) {
+      this.errors['eetGroenten'] = 'Kies of je groenten uit eigen tuin eet';
+    }
+
+    if (this.pcddF === null || this.dioxPCB === null) {
+      this.errors['waarden'] = 'Vul beide labo-resultaten in';
+    }
+
+    return Object.keys(this.errors).length === 0;
+  }
+
   private _berekenAdvies() {
     if (!this.config || this.eetGroenten === null || this.pcddF === null || this.dioxPCB === null) return;
+
+    if (!this._validate()) {
+      // Focus eerste error
+      const firstErrorKey = Object.keys(this.errors)[0];
+      const errorElement = this.shadowRoot?.querySelector(`[id*="${firstErrorKey}"]`);
+      if (errorElement instanceof HTMLElement) {
+        errorElement.focus();
+      }
+      return;
+    }
 
     const invoer: EierenInvoer = {
       eetGroenten: this.eetGroenten,
@@ -303,31 +353,72 @@ export class GezondEierenAdvies extends BaseLitElement {
     };
 
     this.adviesId = bepaalEierenAdvies(invoer, this.config.eieren);
-    this.activeStep = 3;
-  }
 
-  private _naarStap1() {
-    this.activeStep = 1;
-  }
-
-  private _naarStap2() {
-    this.activeStep = 2;
-  }
-
-  private _naarLanding() {
-    window.location.hash = '';
+    // Scroll naar resultaat
+    setTimeout(() => {
+      const resultElement = this.shadowRoot?.getElementById('resultaat');
+      if (resultElement) {
+        resultElement.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 100);
   }
 
   private _reset() {
-    this.activeStep = 1;
     this.locationData = null;
     this.eetGroenten = null;
     this.pcddF = null;
     this.dioxPCB = null;
     this.adviesId = null;
+    this.errors = {};
     if (this.kaartInvoer) {
       this.kaartInvoer.reset();
     }
+    // Scroll naar boven
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  updated(changedProperties: any) {
+    super.updated(changedProperties);
+    this._injectAlertStyles();
+  }
+
+  private _injectAlertStyles() {
+    const alerts = this.shadowRoot?.querySelectorAll('vl-alert');
+    alerts?.forEach(alert => {
+      // Check if we can access the shadowRoot (it should be open for LitElements)
+      if (alert.shadowRoot && !alert.shadowRoot.querySelector('style#custom-alert-styles')) {
+        const style = document.createElement('style');
+        style.id = 'custom-alert-styles';
+        style.textContent = `
+          :host(.alert-geel) .vl-alert {
+            background-color: #fff3cd !important;
+            border-color: #ffeeba !important;
+            color: #856404 !important;
+          }
+          :host(.alert-geel) .vl-icon::before {
+             color: #856404 !important;
+          }
+          :host(.alert-geel) .vl-alert__title, 
+          :host(.alert-geel) .vl-alert__message {
+             color: #856404 !important;
+          }
+
+          :host(.alert-oranje) .vl-alert {
+            background-color: #ffe8cc !important;
+            border-color: #ffd699 !important;
+            color: #cc5200 !important;
+          }
+          :host(.alert-oranje) .vl-icon::before {
+             color: #cc5200 !important;
+          }
+          :host(.alert-oranje) .vl-alert__title,
+          :host(.alert-oranje) .vl-alert__message {
+             color: #cc5200 !important;
+          }
+        `;
+        alert.shadowRoot.appendChild(style);
+      }
+    });
   }
 }
 
