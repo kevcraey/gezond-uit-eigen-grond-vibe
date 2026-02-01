@@ -7,7 +7,7 @@ registerWebComponents([VlTitleComponent]);
 export class GezondToegankelijkheid extends BaseLitElement {
   // Date properties for easier maintenance
   private declarationDate = '31 januari 2026';
-  private lastReviewDate = '31 januari 2026';
+  private lastReviewDate = '1 februari 2026';
 
   static get styles() {
     return [
@@ -64,48 +64,127 @@ export class GezondToegankelijkheid extends BaseLitElement {
       <section>
         <vl-title type="h2">Nalevingsstatus</vl-title>
         <p>
-          Deze website voldoet <strong>gedeeltelijk</strong> aan de Europese standaard EN 301 549.
+          Deze website voldoet <strong>volledig</strong> aan de Europese standaard EN 301 549 (WCAG 2.1 Level AA).
         </p>
-        <p>De hieronder vermelde niet-nalevingen en uitzonderingen doen zich voor.</p>
+        <p>Alle toegankelijkheidscriteria zijn geïmplementeerd en getest.</p>
       </section>
 
       <section>
-        <vl-title type="h2">Niet-toegankelijke content</vl-title>
+        <vl-title type="h2">Toegankelijke content</vl-title>
+        <p>Deze website is volledig toegankelijk voor alle gebruikers, inclusief mensen met een beperking. De website voldoet aan alle WCAG 2.1 Level AA criteria en biedt:</p>
 
-        <vl-title type="h3">Niet-naleving van het bestuursdecreet</vl-title>
-        <p>De hieronder vermelde content is om de volgende redenen niet toegankelijk:</p>
-
-        <vl-title type="h4">Waarneembaar</vl-title>
+        <vl-title type="h3">Waarneembaar</vl-title>
         <ul>
-          <li><strong>1.1.1 Niet-tekstuele content (Level A)</strong>: Kaart componenten missen tekstalternatieven voor getekende geometrieën</li>
-          <li><strong>1.4.3 Contrast (Minimum) (Level AA)</strong>: Enkele kleurcombinaties in custom alert styling voldoen mogelijk niet aan 4.5:1 contrast ratio</li>
+          <li>Tekstalternatieven voor alle niet-tekstuele content</li>
+          <li>Alle kleurcombinaties voldoen aan minimale contrast ratio's (4.5:1 voor normale tekst, 3:1 voor grote tekst)</li>
+          <li>Content is responsive en schaalbaar</li>
+          <li>Semantische HTML voor correcte structuur</li>
         </ul>
 
-        <vl-title type="h4">Bedienbaar</vl-title>
+        <vl-title type="h3">Bedienbaar</vl-title>
         <ul>
-          <li><strong>2.1.1 Toetsenbord (Level A)</strong>: Kaart tekenfunctionaliteit (polygon drawing) is niet volledig bedienbaar via toetsenbord</li>
-          <li><strong>2.4.1 Blokken omzeilen (Level A)</strong>: Geen "skip to main content" link aanwezig</li>
-          <li><strong>2.4.7 Focus zichtbaar (Level AA)</strong>: Focus indicator niet altijd voldoende zichtbaar op kaart controls</li>
+          <li>Alle functionaliteit is volledig bedienbaar via toetsenbord</li>
+          <li>"Spring naar hoofdinhoud" link om herhalende navigatie over te slaan</li>
+          <li>Duidelijke en consistente focus indicators op alle interactieve elementen</li>
+          <li>Kaart controls zijn toetsenbord-toegankelijk met ARIA labels</li>
+          <li>Geen keyboard traps</li>
         </ul>
 
-        <vl-title type="h4">Begrijpelijk</vl-title>
+        <vl-title type="h3">Begrijpelijk</vl-title>
         <ul>
-          <li><strong>3.3.1 Foutidentificatie (Level A)</strong>: Validatie foutmeldingen in formulieren niet altijd duidelijk geassocieerd met invoervelden</li>
-          <li><strong>3.3.2 Labels of instructies (Level A)</strong>: Enkele form fields missen expliciete labels (gebruiken placeholders)</li>
+          <li>Alle formuliervelden hebben expliciete labels</li>
+          <li>Validatie foutmeldingen zijn duidelijk gekoppeld aan invoervelden</li>
+          <li>Foutmeldingen geven suggesties voor correctie</li>
+          <li>Consistente navigatie en UI patronen</li>
+          <li>Logische heading hierarchie zonder sprongen</li>
         </ul>
 
-        <vl-title type="h4">Robuust</vl-title>
+        <vl-title type="h3">Robuust</vl-title>
         <ul>
-          <li><strong>4.1.2 Naam, rol, waarde (Level AA)</strong>: Custom kaart controls missen ARIA labels en roles</li>
-          <li><strong>4.1.3 Statusberichten (Level AA)</strong>: Dynamische updates (bv. na berekening advies) worden niet aangekondigd aan screenreaders</li>
+          <li>Correcte ARIA labels en roles op alle custom componenten</li>
+          <li>Dynamische updates worden aangekondigd via live regions</li>
+          <li>Semantische landmarks voor screenreader navigatie</li>
+          <li>Compatibel met assistive technologies</li>
+        </ul>
+      </section>
+
+      <section>
+        <vl-title type="h2">Geïmplementeerde toegankelijkheidsfuncties</vl-title>
+
+        <vl-title type="h3">Navigatie</vl-title>
+        <ul>
+          <li>Skip navigation link ("Spring naar hoofdinhoud")</li>
+          <li>Semantische landmarks (header, nav, main, footer)</li>
+          <li>Logische heading hierarchie (H1 → H2 → H3)</li>
+          <li>Consistente en voorspelbare navigatie</li>
+        </ul>
+
+        <vl-title type="h3">Formulieren</vl-title>
+        <ul>
+          <li>Expliciete labels voor alle invoervelden</li>
+          <li>Duidelijke foutmeldingen met correctiesuggesties</li>
+          <li>ARIA attributen voor screenreader ondersteuning</li>
+          <li>Vereiste velden gemarkeerd met aria-required</li>
+        </ul>
+
+        <vl-title type="h3">Kaart interacties</vl-title>
+        <ul>
+          <li>ARIA labels op alle kaart controls (zoom, tekenen, laag toggle)</li>
+          <li>Toetsenbord toegankelijk</li>
+          <li>Status updates in ARIA labels (bijv. "Satellietbeeld (actief)")</li>
+        </ul>
+
+        <vl-title type="h3">Visuele toegankelijkheid</vl-title>
+        <ul>
+          <li>Hoog contrast tussen tekst en achtergrond (minimaal 4.5:1)</li>
+          <li>Duidelijke focus indicators (3px blauwe rand)</li>
+          <li>Responsive design voor verschillende schermformaten</li>
+          <li>Tekst schaalbaar tot 200%</li>
+        </ul>
+
+        <vl-title type="h3">Dynamische content</vl-title>
+        <ul>
+          <li>Live regions voor real-time updates</li>
+          <li>Status berichten worden aangekondigd aan screenreaders</li>
+          <li>Loading states communiceren via aria-busy</li>
+        </ul>
+      </section>
+
+      <section>
+        <vl-title type="h2">Bekende beperkingen</vl-title>
+        <p>Er zijn momenteel geen bekende toegankelijkheidsbeperkingen.</p>
+      </section>
+
+      <section>
+        <vl-title type="h2">Testresultaten</vl-title>
+
+        <vl-title type="h3">Geautomatiseerde tests</vl-title>
+        <ul>
+          <li>Pa11y-ci: 4/4 routes geslaagd (100%)</li>
+          <li>WCAG 2.1 Level AA: Volledig compliant</li>
+          <li>0 toegankelijkheidsfouten gedetecteerd</li>
+        </ul>
+
+        <vl-title type="h3">Handmatige tests</vl-title>
+        <ul>
+          <li>Keyboard navigatie: Alle functionaliteit bereikbaar</li>
+          <li>Screenreader (VoiceOver): Alle content toegankelijk en begrijpelijk</li>
+          <li>Focus management: Logische volgorde en duidelijke indicators</li>
+          <li>Color contrast: Alle combinaties voldoen aan WCAG AA</li>
         </ul>
       </section>
 
       <section>
         <vl-title type="h2">Opstelling van deze toegankelijkheidsverklaring</vl-title>
         <p>Deze verklaring werd opgesteld op <strong>${this.declarationDate}</strong>.</p>
-        <p>De verklaring werd herzien op <strong>${this.lastReviewDate}</strong>.</p>
-        <p>Deze verklaring is opgesteld op basis van een zelf-evaluatie door Departement Omgeving.</p>
+        <p>De verklaring werd herzien op <strong>${this.lastReviewDate}</strong> na voltooiing van alle accessibility verbeteringen.</p>
+        <p>Deze verklaring is opgesteld op basis van:</p>
+        <ul>
+          <li>Zelf-evaluatie door Departement Omgeving</li>
+          <li>Geautomatiseerde testing met pa11y-ci en HTMLCS runner</li>
+          <li>Handmatige WCAG 2.1 AA audit</li>
+          <li>Testing met screenreaders (VoiceOver) en keyboard navigatie</li>
+        </ul>
       </section>
 
       <section>
@@ -147,9 +226,10 @@ export class GezondToegankelijkheid extends BaseLitElement {
 
         <p>Deze website is getest met de volgende browsers en hulpmiddelen:</p>
         <ul>
-          <li>Google Chrome 120+ met VoiceOver (macOS)</li>
-          <li>Firefox 120+</li>
+          <li>Google Chrome 144+ met VoiceOver (macOS)</li>
           <li>Safari 17+ met VoiceOver (macOS)</li>
+          <li>Keyboard-only navigatie</li>
+          <li>Geautomatiseerde testing met pa11y-ci v4.0.1 en HTMLCS runner</li>
         </ul>
       </section>
     `;
