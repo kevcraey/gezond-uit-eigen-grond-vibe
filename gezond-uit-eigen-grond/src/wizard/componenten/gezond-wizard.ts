@@ -2,6 +2,7 @@
 import { registerWebComponents, BaseLitElement, defineWebComponent } from '@domg-wc/common';
 import { spatialService } from '../../common/services/spatial.service';
 import { wizardStyles } from './gezond-wizard.css';
+import { accessibilityStyles } from '../../common/styles/accessibility.css';
 import { VlButtonComponent, VlTitleComponent } from '@domg-wc/components/atom';
 import { VlWizard, VlWizardPane } from '@domg-wc/components/block/wizard';
 import { VlAlert } from '@domg-wc/components/block/alert';
@@ -94,6 +95,7 @@ export class GezondWizard extends BaseLitElement {
       vlGroupStyles,
       vlStackedStyles,
       wizardStyles,
+      accessibilityStyles,
       css`
         .visually-hidden {
           position: absolute;

@@ -5,6 +5,7 @@ import { VlWizard, VlWizardPane } from '@domg-wc/components/block/wizard';
 import { VlFormLabelComponent, VlInputFieldComponent } from '@domg-wc/components/form';
 import { VlRadioComponent, VlRadioGroupComponent } from '@domg-wc/components/form/radio-group';
 import { vlGridStyles, vlStackedStyles } from '@domg-wc/styles';
+import { accessibilityStyles } from '../../common/styles/accessibility.css';
 import { TemplateResult, html, css, nothing } from 'lit';
 import { state, query } from 'lit/decorators.js';
 import '../../common/componenten/gezond-kaart-invoer';
@@ -52,6 +53,7 @@ export class GezondGroentenAdvies extends BaseLitElement {
     return [
       vlGridStyles,
       vlStackedStyles,
+      accessibilityStyles,
       css`
         :host {
           display: block;
@@ -59,7 +61,7 @@ export class GezondGroentenAdvies extends BaseLitElement {
         .content-section {
           margin-bottom: 3rem;
         }
-        
+
         /* Custom Alert Colors are injected via JS to penetrate Shadow DOM */
 
         .form-group {

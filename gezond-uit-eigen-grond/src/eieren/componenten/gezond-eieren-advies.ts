@@ -4,6 +4,7 @@ import { VlAlert } from '@domg-wc/components/block/alert';
 import { VlFormLabelComponent, VlInputFieldComponent } from '@domg-wc/components/form';
 import { VlRadioComponent, VlRadioGroupComponent } from '@domg-wc/components/form/radio-group';
 import { vlGridStyles, vlStackedStyles } from '@domg-wc/styles';
+import { accessibilityStyles } from '../../common/styles/accessibility.css';
 import { TemplateResult, html, css, nothing } from 'lit';
 import { state, query } from 'lit/decorators.js';
 import '../../common/componenten/gezond-kaart-invoer';
@@ -43,11 +44,12 @@ export class GezondEierenAdvies extends BaseLitElement {
     return [
       vlGridStyles,
       vlStackedStyles,
+      accessibilityStyles,
       css`
         :host {
           display: block;
         }
-        
+
         /* Custom Alert Colors are injected via JS to penetrate Shadow DOM */
 
         .content-section {
