@@ -379,29 +379,29 @@ export class GezondGroentenAdvies extends BaseLitElement {
         style.id = 'custom-alert-styles';
         style.textContent = `
           :host(.alert-geel) .vl-alert {
-            background-color: #fff3cd !important;
-            border-color: #ffeeba !important;
-            color: #856404 !important;
+            background-color: #fef8e7 !important;
+            border-color: #f4d03f !important;
+            color: #7d6608 !important;
           }
           :host(.alert-geel) .vl-icon::before {
-             color: #856404 !important;
+             color: #7d6608 !important;
           }
-          :host(.alert-geel) .vl-alert__title, 
+          :host(.alert-geel) .vl-alert__title,
           :host(.alert-geel) .vl-alert__message {
-             color: #856404 !important;
+             color: #7d6608 !important;
           }
 
           :host(.alert-oranje) .vl-alert {
-            background-color: #ffe8cc !important;
-            border-color: #ffd699 !important;
-            color: #cc5200 !important;
+            background-color: #fff4e6 !important;
+            border-color: #ff9933 !important;
+            color: #993d00 !important;
           }
           :host(.alert-oranje) .vl-icon::before {
-             color: #cc5200 !important;
+             color: #993d00 !important;
           }
           :host(.alert-oranje) .vl-alert__title,
           :host(.alert-oranje) .vl-alert__message {
-             color: #cc5200 !important;
+             color: #993d00 !important;
           }
         `;
         alert.shadowRoot.appendChild(style);
