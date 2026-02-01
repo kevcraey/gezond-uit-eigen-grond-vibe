@@ -7,10 +7,11 @@ import '../../common/componenten/gezond-template';
 import '../../landing/componenten/gezond-landing-page';
 import '../../groenten/componenten/gezond-groenten-advies';
 import '../../eieren/componenten/gezond-eieren-advies';
+import '../../toegankelijkheid/componenten/gezond-toegankelijkheid';
 
 registerWebComponents([GezondWizard]);
 
-type Route = 'landing' | 'doe-de-test' | 'advies-groenten' | 'advies-eieren';
+type Route = 'landing' | 'doe-de-test' | 'advies-groenten' | 'advies-eieren' | 'toegankelijkheid';
 
 export class GezondIndex extends LitElement {
   @state() private currentRoute: Route = 'landing';
@@ -47,7 +48,7 @@ export class GezondIndex extends LitElement {
 
   private handleHashChange = (): void => {
     const hash = window.location.hash.slice(1); // Remove the '#'
-    if (hash === 'doe-de-test' || hash === 'advies-groenten' || hash === 'advies-eieren') {
+    if (hash === 'doe-de-test' || hash === 'advies-groenten' || hash === 'advies-eieren' || hash === 'toegankelijkheid') {
       this.currentRoute = hash;
     } else {
       this.currentRoute = 'landing';
@@ -90,6 +91,14 @@ export class GezondIndex extends LitElement {
     `;
   }
 
+  private renderToegankelijkheid(): TemplateResult {
+    return html`
+      <div class="container">
+        <gezond-toegankelijkheid></gezond-toegankelijkheid>
+      </div>
+    `;
+  }
+
   private renderCurrentRoute(): TemplateResult {
     switch (this.currentRoute) {
       case 'doe-de-test':
@@ -98,15 +107,59 @@ export class GezondIndex extends LitElement {
         return this.renderAdviesGroenten();
       case 'advies-eieren':
         return this.renderAdviesEieren();
+      case 'toegankelijkheid':
+        return this.renderToegankelijkheid();
       case 'landing':
       default:
         return this.renderLanding();
     }
   }
 
+  private getTitle(): string {
+    return 'Gezond uit eigen grond';
+  }
+
+  private getSubTitle(): string {
+    switch (this.currentRoute) {
+      case 'doe-de-test':
+        return 'Doe de test';
+      case 'advies-groenten':
+        return 'Advies groenten';
+      case 'advies-eieren':
+        return 'Advies eieren';
+      case 'toegankelijkheid':
+        return 'Toegankelijkheidsverklaring';
+      default:
+        return '';
+    }
+  }
+
+  private getBreadcrumbs(): { title: string; href?: string }[] {
+    const home = { title: 'Gezond uit eigen grond', href: '#landing' };
+    const homeActive = { title: 'Gezond uit eigen grond' };
+
+    switch (this.currentRoute) {
+      case 'doe-de-test':
+        return [home, { title: 'Doe de test' }];
+      case 'advies-groenten':
+        return [home, { title: 'Advies groenten' }];
+      case 'advies-eieren':
+        return [home, { title: 'Advies eieren' }];
+      case 'toegankelijkheid':
+        return [home, { title: 'Toegankelijkheidsverklaring' }];
+      case 'landing':
+      default:
+        return [homeActive];
+    }
+  }
+
   protected render(): TemplateResult {
     return html`
-      <gezond-template>
+      <gezond-template
+        .title=${this.getTitle()}
+        .subTitle=${this.getSubTitle()}
+        .breadcrumbs=${this.getBreadcrumbs()}
+      >
         ${this.renderCurrentRoute()}
       </gezond-template>
     `;
