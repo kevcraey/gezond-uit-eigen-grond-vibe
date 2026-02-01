@@ -38,6 +38,9 @@ export class GezondEierenAdvies extends BaseLitElement {
   // Validatie
   @state() private errors: { [key: string]: string } = {};
 
+  // Live region announcements
+  @state() private announceMessage: string = '';
+
   @query('gezond-kaart-invoer') private kaartInvoer!: GezondKaartInvoer;
 
   static get styles() {
@@ -124,11 +127,19 @@ export class GezondEierenAdvies extends BaseLitElement {
       return html`<p>Laden...</p>`;
     }
 
-    const alleVeldenIngevuld = this.locationData && 
+    const alleVeldenIngevuld = this.locationData &&
       this.eetGroenten !== null &&
       this.pcddF !== null && this.dioxPCB !== null;
 
     return html`
+      <div
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        class="visually-hidden">
+        ${this.announceMessage}
+      </div>
+
       <vl-title type="h1">Advies eieren</vl-title>
       <p>Bereken op basis van je labo-resultaten hoeveel eieren van je eigen kippen je veilig kan eten.</p>
 
@@ -336,9 +347,8 @@ export class GezondEierenAdvies extends BaseLitElement {
   }
 
   private _berekenAdvies() {
-    if (!this.config || this.eetGroenten === null || this.pcddF === null || this.dioxPCB === null) return;
-
     if (!this._validate()) {
+      this.announceMessage = `Fout: ${Object.values(this.errors)[0]}`;
       // Focus eerste error
       const firstErrorKey = Object.keys(this.errors)[0];
       const errorElement = this.shadowRoot?.querySelector(`[id*="${firstErrorKey}"]`);
@@ -348,6 +358,8 @@ export class GezondEierenAdvies extends BaseLitElement {
       return;
     }
 
+    if (!this.config || this.eetGroenten === null || this.pcddF === null || this.dioxPCB === null) return;
+
     const invoer: EierenInvoer = {
       eetGroenten: this.eetGroenten,
       PCDD_F: this.pcddF,
@@ -355,6 +367,10 @@ export class GezondEierenAdvies extends BaseLitElement {
     };
 
     this.adviesId = bepaalEierenAdvies(invoer, this.config.eieren);
+
+    // Announce result
+    const advies = this.config.eieren.adviezen[this.adviesId!];
+    this.announceMessage = `Advies berekend: ${advies.titel}`;
 
     // Scroll naar resultaat
     setTimeout(() => {
@@ -382,6 +398,13 @@ export class GezondEierenAdvies extends BaseLitElement {
   updated(changedProperties: any) {
     super.updated(changedProperties);
     this._injectAlertStyles();
+
+    // Clear announcement after it's been read
+    if (changedProperties.has('announceMessage') && this.announceMessage) {
+      setTimeout(() => {
+        this.announceMessage = '';
+      }, 1000);
+    }
   }
 
   private _injectAlertStyles() {

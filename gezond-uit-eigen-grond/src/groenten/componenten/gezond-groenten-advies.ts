@@ -47,6 +47,9 @@ export class GezondGroentenAdvies extends BaseLitElement {
   // Validatie
   @state() private errors: { [key: string]: string } = {};
 
+  // Live region announcements
+  @state() private announceMessage: string = '';
+
   @query('gezond-kaart-invoer') private kaartInvoer!: GezondKaartInvoer;
 
   static get styles() {
@@ -133,6 +136,14 @@ export class GezondGroentenAdvies extends BaseLitElement {
     const alleVeldenIngevuld = this.locationData?.postcode && heeftTuinType && heeftMinstensEenWaarde;
 
     return html`
+      <div
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        class="visually-hidden">
+        ${this.announceMessage}
+      </div>
+
       <vl-title type="h1">Advies groenten</vl-title>
       <p>Bereken op basis van je labo-resultaten of je veilig groenten kan kweken in je moestuin.</p>
 
@@ -323,9 +334,8 @@ export class GezondGroentenAdvies extends BaseLitElement {
   }
 
   private _berekenAdvies() {
-    if (!this.config || !this.locationData) return;
-
     if (!this._validate()) {
+      this.announceMessage = `Fout: ${Object.values(this.errors)[0]}`;
       // Focus eerste error
       const firstErrorKey = Object.keys(this.errors)[0];
       const errorElement = this.shadowRoot?.querySelector(`[id*="${firstErrorKey}"]`);
@@ -335,6 +345,8 @@ export class GezondGroentenAdvies extends BaseLitElement {
       return;
     }
 
+    if (!this.config || !this.locationData) return;
+
     const invoer: GroentenInvoer = {
       tuinType: this.tuinType,
       postcode: this.locationData.postcode || '',
@@ -343,6 +355,10 @@ export class GezondGroentenAdvies extends BaseLitElement {
 
     this.adviesKleur = bepaalGroentenAdvies(invoer, this.config.groenten);
     this.cdAdviesNiveau = bepaalCdAdviesNiveau(this.waarden['Cd']);
+
+    // Announce result
+    const advies = this.config.groenten.adviezen[this.adviesKleur!];
+    this.announceMessage = `Advies berekend: ${advies.titel}`;
 
     // Scroll naar resultaat
     setTimeout(() => {
@@ -370,6 +386,13 @@ export class GezondGroentenAdvies extends BaseLitElement {
   updated(changedProperties: any) {
     super.updated(changedProperties);
     this._injectAlertStyles();
+
+    // Clear announcement after it's been read
+    if (changedProperties.has('announceMessage') && this.announceMessage) {
+      setTimeout(() => {
+        this.announceMessage = '';
+      }, 1000);
+    }
   }
 
   private _injectAlertStyles() {
