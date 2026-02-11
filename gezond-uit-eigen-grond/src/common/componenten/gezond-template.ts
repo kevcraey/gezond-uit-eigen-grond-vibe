@@ -166,7 +166,7 @@ export class GezondTemplate extends BaseLitElement {
           <div class="custom-footer-links">
             <nav aria-label="Secundaire navigatie">
               <ul>
-                <li><a href="/toegankelijkheidsverklaring.html">Toegankelijkheidsverklaring</a></li>
+                <li><a href="#toegankelijkheid">Toegankelijkheidsverklaring</a></li>
               </ul>
             </nav>
           </div>
