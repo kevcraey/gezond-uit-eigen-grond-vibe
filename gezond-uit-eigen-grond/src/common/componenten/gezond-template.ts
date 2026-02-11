@@ -166,7 +166,7 @@ export class GezondTemplate extends BaseLitElement {
           <div class="custom-footer-links">
             <nav aria-label="Secundaire navigatie">
               <ul>
-                <li><a href="#toegankelijkheid">Toegankelijkheidsverklaring</a></li>
+                <li><a href="/toegankelijkheidsverklaring.html">Toegankelijkheidsverklaring</a></li>
               </ul>
             </nav>
           </div>
@@ -208,16 +208,12 @@ export class GezondTemplate extends BaseLitElement {
       <a href="#main" class="skip-link">Spring naar hoofdinhoud</a>
       ${this.renderToaster()}
       <vl-template>
-        <header role="banner">
-          ${this.renderHeader()}
-          ${this.renderFunctionalHeader()}
-        </header>
-        <main role="main" id="main" tabindex="-1">
+        ${this.renderHeader()}
+        ${this.renderFunctionalHeader()}
+        <main role="main" id="main" tabindex="-1" slot="main">
           <slot></slot>
         </main>
-        <footer role="contentinfo">
-          ${this.renderFooter()}
-        </footer>
+        ${this.renderFooter()}
       </vl-template>
     `;
   }

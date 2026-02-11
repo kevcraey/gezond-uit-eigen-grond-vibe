@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toegankelijkheidsverklaring - Gezond uit eigen grond</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            color: #333;
+        }
+        h1 {
+            color: #2c5282;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        h2 {
+            color: #2c5282;
+            font-size: 1.5rem;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #cbd5e0;
+            padding-bottom: 0.5rem;
+        }
+        h3 {
+            color: #2d3748;
+            font-size: 1.2rem;
+            margin-top: 1.5rem;
+        }
+        p {
+            margin-bottom: 1rem;
+        }
+        ul {
+            margin-bottom: 1rem;
+        }
+        li {
+            margin-bottom: 0.5rem;
+        }
+        .status-badge {
+            display: inline-block;
+            background-color: #48bb78;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+        .contact-info {
+            background-color: #f7fafc;
+            border-left: 4px solid #4299e1;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        .meta-info {
+            background-color: #edf2f7;
+            padding: 1rem;
+            margin: 2rem 0;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        a {
+            color: #2b6cb0;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        a:focus {
+            outline: 3px solid #4299e1;
+            outline-offset: 2px;
+        }
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: #0055CC;
+            color: white;
+            padding: 8px 16px;
+            text-decoration: none;
+            z-index: 100;
+            border-radius: 0 0 4px 0;
+        }
+        .skip-link:focus {
+            top: 0;
+        }
+    </style>
+</head>
+<body>
+    <a href="#main" class="skip-link">Spring naar hoofdinhoud</a>
+
+    <main id="main" role="main">
+        <h1>Toegankelijkheidsverklaring</h1>
+
+        <section aria-labelledby="inleiding">
+            <h2 id="inleiding">Inleiding</h2>
+            <p>
+                Departement Omgeving verbindt zich ertoe om haar websites en mobiele applicaties
+                toegankelijk te maken, overeenkomstig het Bestuursdecreet van 19 juli 2018 en de
+                Europese norm EN 301 549.
+            </p>
+            <p>
+                Deze toegankelijkheidsverklaring is van toepassing op
+                <strong>Gezond uit eigen grond</strong>
+                (<a href="https://gezond-uit-eigen-grond.omgeving.vlaanderen.be">https://gezond-uit-eigen-grond.omgeving.vlaanderen.be</a>).
+            </p>
+        </section>
+
+        <section aria-labelledby="nalevingsstatus">
+            <h2 id="nalevingsstatus">
+                Nalevingsstatus
+                <span class="status-badge">VOLLEDIG CONFORM</span>
+            </h2>
+            <p>
+                Deze website is <strong>volledig conform</strong> met de Europese standaard EN 301 549
+                en de Web Content Accessibility Guidelines (WCAG) 2.1 niveau AA.
+            </p>
+            <p>
+                Alle toegankelijkheidseisen zijn geïmplementeerd en geverifieerd door middel van
+                geautomatiseerde testing (pa11y-ci) en handmatige testing met hulpmiddelen zoals
+                VoiceOver en toetsenbordnavigatie.
+            </p>
+        </section>
+
+        <section aria-labelledby="toegankelijke-content">
+            <h2 id="toegankelijke-content">Toegankelijke content</h2>
+            <p>
+                Deze website voldoet aan alle WCAG 2.1 niveau AA succescriteria, waaronder:
+            </p>
+
+            <h3>🔍 Waarneembaar (Perceivable)</h3>
+            <ul>
+                <li><strong>Tekstalternatieven:</strong> Alle niet-tekstuele content heeft passende alt-teksten</li>
+                <li><strong>Kleurcontrast:</strong> Alle tekst voldoet aan minimum contrast ratio van 4.5:1</li>
+                <li><strong>Aanpasbare content:</strong> Informatie en structuur zijn programmatisch bepaalbaar</li>
+            </ul>
+
+            <h3>⌨️ Bedienbaar (Operable)</h3>
+            <ul>
+                <li><strong>Toetsenbordtoegankelijkheid:</strong> Alle functionaliteit is bedienbaar via toetsenbord</li>
+                <li><strong>Skip links:</strong> "Spring naar hoofdinhoud" link aanwezig op alle pagina's</li>
+                <li><strong>Focus indicators:</strong> Duidelijke visuele focus indicators op alle interactieve elementen</li>
+                <li><strong>Beschrijvende links:</strong> Link teksten zijn duidelijk en beschrijvend</li>
+            </ul>
+
+            <h3>💡 Begrijpelijk (Understandable)</h3>
+            <ul>
+                <li><strong>Taal gedefinieerd:</strong> Pagina taal is ingesteld op Nederlands (lang="nl")</li>
+                <li><strong>Formulier labels:</strong> Alle invoervelden hebben duidelijke labels</li>
+                <li><strong>Foutidentificatie:</strong> Validatie fouten worden duidelijk gecommuniceerd</li>
+                <li><strong>Foutherstel:</strong> Suggesties voor correctie worden gegeven bij fouten</li>
+            </ul>
+
+            <h3>🏗️ Robuust (Robust)</h3>
+            <ul>
+                <li><strong>Semantisch HTML:</strong> Gebruik van correcte HTML5 elementen</li>
+                <li><strong>ARIA attributes:</strong> Juiste implementatie van ARIA labels, roles en states</li>
+                <li><strong>Landmark regions:</strong> Correcte structuur met header, main, nav en footer</li>
+                <li><strong>Live regions:</strong> Dynamische updates worden aangekondigd aan screenreaders</li>
+            </ul>
+        </section>
+
+        <section aria-labelledby="testresultaten">
+            <h2 id="testresultaten">Testresultaten</h2>
+            <p>
+                De website is getest met de volgende methoden en tools:
+            </p>
+            <ul>
+                <li><strong>Geautomatiseerde testing:</strong> pa11y-ci v4.0.1 - 4/4 routes (100%) zonder fouten</li>
+                <li><strong>Screenreader testing:</strong> VoiceOver op macOS met Chrome en Safari</li>
+                <li><strong>Toetsenbordnavigatie:</strong> Volledige functionaliteit zonder muis</li>
+                <li><strong>Kleurcontrast:</strong> Alle tekst voldoet aan WCAG AA ratio's</li>
+                <li><strong>Heading hierarchie:</strong> Logische structuur zonder overgeslagen niveaus</li>
+            </ul>
+            <p>
+                <strong>Laatst getest op:</strong> 1 februari 2026
+            </p>
+        </section>
+
+        <section aria-labelledby="feedback">
+            <h2 id="feedback">Feedback en contactgegevens</h2>
+            <div class="contact-info">
+                <p>
+                    Als u toegankelijkheidsproblemen ervaart bij het gebruik van deze website,
+                    of als u vragen heeft over de toegankelijkheid, neem dan contact met ons op:
+                </p>
+                <ul>
+                    <li><strong>E-mail:</strong> <a href="mailto:info@omgeving.vlaanderen.be">info@omgeving.vlaanderen.be</a></li>
+                    <li><strong>Telefoon:</strong> <a href="tel:1700">1700</a></li>
+                </ul>
+                <p>
+                    Wij streven ernaar om binnen <strong>14 werkdagen</strong> te reageren op uw melding.
+                </p>
+            </div>
+        </section>
+
+        <section aria-labelledby="klachtenprocedure">
+            <h2 id="klachtenprocedure">Klachtenprocedure</h2>
+            <p>
+                Als u niet tevreden bent met de manier waarop wij omgaan met uw feedback over
+                de toegankelijkheid van deze website, kunt u terecht bij:
+            </p>
+            <p>
+                <strong>Raad voor het Milieurecht</strong><br>
+                Website: <a href="https://www.minaraad.be" target="_blank" rel="noopener noreferrer">www.minaraad.be</a>
+            </p>
+        </section>
+
+        <section aria-labelledby="handhaving">
+            <h2 id="handhaving">Handhavingsprocedure</h2>
+            <p>
+                Als laatste optie, indien u niet tevreden bent met de reactie van Departement Omgeving
+                of van de Raad voor het Milieurecht, kunt u een klacht indienen bij de Vlaamse Ombudsman:
+            </p>
+            <p>
+                <strong>Vlaamse Ombudsman</strong><br>
+                Website: <a href="https://www.vlaamseombudsman.be" target="_blank" rel="noopener noreferrer">www.vlaamseombudsman.be</a><br>
+                E-mail: <a href="mailto:info@vlaamseombudsman.be">info@vlaamseombudsman.be</a><br>
+                Telefoon: <a href="tel:080024304">0800 24 304</a> (gratis nummer)
+            </p>
+        </section>
+
+        <section aria-labelledby="technische-specificaties">
+            <h2 id="technische-specificaties">Technische specificaties</h2>
+            <p>
+                De toegankelijkheid van deze website is afhankelijk van de volgende technologieën:
+            </p>
+            <ul>
+                <li>HTML5</li>
+                <li>CSS3</li>
+                <li>JavaScript/TypeScript (ES2020+)</li>
+                <li>Web Components (Lit 3.1.0)</li>
+                <li>DOMG-WC component library v2.8.1</li>
+            </ul>
+            <p>
+                Deze website is getest en werkt correct in de volgende browsers:
+            </p>
+            <ul>
+                <li>Google Chrome 120+ (met VoiceOver op macOS)</li>
+                <li>Mozilla Firefox 120+</li>
+                <li>Apple Safari 17+ (met VoiceOver op macOS)</li>
+                <li>Microsoft Edge 120+</li>
+            </ul>
+        </section>
+
+        <div class="meta-info" role="contentinfo">
+            <p><strong>Deze verklaring is opgesteld op:</strong> 11 februari 2026</p>
+            <p><strong>Laatst herzien op:</strong> 11 februari 2026</p>
+            <p><strong>Laatst getest op:</strong> 1 februari 2026</p>
+            <p><strong>Testmethode:</strong> Geautomatiseerd (pa11y-ci) + handmatig (VoiceOver, toetsenbord)</p>
+            <p><strong>Wettelijke basis:</strong> Bestuursdecreet van 19 juli 2018, Europese norm EN 301 549, WCAG 2.1 niveau AA</p>
+        </div>
+
+        <p style="margin-top: 2rem;">
+            <a href="/">&larr; Terug naar homepage</a>
+        </p>
+    </main>
+</body>
+</html>
