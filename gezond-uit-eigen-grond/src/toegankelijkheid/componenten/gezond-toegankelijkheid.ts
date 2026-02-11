@@ -224,11 +224,7 @@ export class GezondToegankelijkheid extends BaseLitElement {
         <vl-title type="h2">Handhavingsprocedure</vl-title>
         <p>
           Als u niet tevreden bent met de reactie van de klachtenbeheerder, kunt u als laatste stap
-          terecht bij de bemiddelingsdiensten:
-        </p>
-        <p>
-          <strong>Raad voor het Milieurecht</strong><br>
-          <a href="https://www.minaraad.be" target="_blank" rel="noopener noreferrer" aria-label="Raad voor het Milieurecht (opent in nieuw venster)">www.minaraad.be</a>
+          terecht bij de Vlaamse Ombudsman:
         </p>
         <p>
           <strong>Vlaamse Ombudsman</strong><br>
