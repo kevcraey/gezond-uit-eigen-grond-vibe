@@ -189,28 +189,53 @@ export class GezondToegankelijkheid extends BaseLitElement {
 
       <section>
         <vl-title type="h2">Feedback en contactgegevens</vl-title>
-        <p>Als u toegankelijkheidsproblemen ervaart bij het gebruik van deze website, contacteer ons dan:</p>
+        <p>
+          Heeft u vragen, opmerkingen of ervaart u toegankelijkheidsproblemen bij het gebruik van deze website?
+          Neem contact met ons op. We helpen u graag verder.
+        </p>
 
         <div class="contact-info">
           <dl>
             <dt>E-mail</dt>
-            <dd><a href="mailto:info@omgeving.vlaanderen.be">info@omgeving.vlaanderen.be</a></dd>
+            <dd><a href="mailto:help@omgeving.vlaanderen.be">help@omgeving.vlaanderen.be</a></dd>
             <dt>Telefoon</dt>
             <dd><a href="tel:1700">1700</a></dd>
+            <dt>Website</dt>
+            <dd><a href="https://omgeving.vlaanderen.be/contact" target="_blank" rel="noopener noreferrer">omgeving.vlaanderen.be/contact</a></dd>
           </dl>
         </div>
 
-        <p>We streven ernaar om binnen 14 dagen te reageren op uw melding.</p>
+        <p>We streven ernaar om binnen 14 werkdagen te reageren op uw melding.</p>
+      </section>
+
+      <section>
+        <vl-title type="h2">Klachtenprocedure</vl-title>
+        <p>
+          Hebt u contact opgenomen maar bent u niet tevreden over uw antwoord?
+          Stuur dan een klacht naar de klachtenbeheerder van Departement Omgeving.
+        </p>
+        <p>
+          U kunt uw klacht indienen via het
+          <a href="https://omgeving.vlaanderen.be/klacht" target="_blank" rel="noopener noreferrer">klachtenformulier op omgeving.vlaanderen.be</a>.
+        </p>
       </section>
 
       <section>
         <vl-title type="h2">Handhavingsprocedure</vl-title>
         <p>
-          Indien u niet tevreden bent met de manier waarop wij omgaan met uw klacht over de toegankelijkheid
-          van deze website, kan u terecht bij:
+          Als u niet tevreden bent met de reactie van de klachtenbeheerder, kunt u als laatste stap
+          terecht bij de bemiddelingsdiensten:
         </p>
-        <p><strong>Raad voor het Milieurecht</strong><br>
-        <a href="https://www.minaraad.be" target="_blank" rel="noopener noreferrer" aria-label="Raad voor het Milieurecht (opent in nieuw venster)">www.minaraad.be</a></p>
+        <p>
+          <strong>Raad voor het Milieurecht</strong><br>
+          <a href="https://www.minaraad.be" target="_blank" rel="noopener noreferrer" aria-label="Raad voor het Milieurecht (opent in nieuw venster)">www.minaraad.be</a>
+        </p>
+        <p>
+          <strong>Vlaamse Ombudsman</strong><br>
+          <a href="https://www.vlaamseombudsman.be" target="_blank" rel="noopener noreferrer" aria-label="Vlaamse Ombudsman (opent in nieuw venster)">www.vlaamseombudsman.be</a><br>
+          E-mail: <a href="mailto:info@vlaamseombudsman.be">info@vlaamseombudsman.be</a><br>
+          Telefoon: <a href="tel:080024304">0800 24 304</a> (gratis nummer)
+        </p>
       </section>
 
       <section>
