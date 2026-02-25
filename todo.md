@@ -1,1 +1,0 @@
-- Waar zit de WFS config?

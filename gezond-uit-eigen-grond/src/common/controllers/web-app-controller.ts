@@ -19,8 +19,6 @@ class WebAppController {
     if (!this._configuratie) {
       // Mock for standalone
       this._configuratie = {
-        headerUuid: '11111111-1111-1111-1111-111111111111',
-        footerUuid: '22222222-2222-2222-2222-222222222222',
         developmentMode: true,
         maxFileSize: 10000000
       };

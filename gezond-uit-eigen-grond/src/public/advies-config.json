@@ -17,31 +17,31 @@
     ],
     "drempels": {
       "priveMetKippen": {
-        "As":  { "groen": 103, "oranje": 103, "rood": 103 },
-        "Cd":  { "groen": 6, "oranje": 6, "rood": 6.8 },
-        "Cr":  { "groen": 120, "geel": 240, "oranje": 260, "rood": 260 },
-        "Hg":  { "groen": 1 },
-        "Pb":  { "groen": 200, "geel": 200, "oranje": 560, "rood": 560 },
+        "As":  { "groen": 103, "rood": 103 },
+        "Cd":  { "groen": 6, "oranje": 6, "rood": 100 },
+        "Cr":  { "groen": 120, "geel": 120, "oranje": 240, "rood": 260 },
+        "Hg":  { "groen": 1, "geel": 1, "oranje": 4.8, "rood": 6.8 },
+        "Pb":  { "groen": 200, "geel": 200, "rood": 560 },
         "Ni":  { "groen": 100, "geel": 100, "oranje": 125, "rood": 157 },
-        "BaP": { "groen": 3.6, "geel": 4.9, "oranje": 6.3, "rood": 6.3 }
+        "BaP": { "groen": 3.6, "geel": 3.6, "oranje": 4.9, "rood": 6.3 }
       },
       "priveZonderKippen": {
-        "As":  { "groen": 103, "oranje": 103, "rood": 103 },
-        "Cd":  { "groen": 6, "oranje": 6, "rood": 6.8 },
-        "Cr":  { "groen": 120, "geel": 240, "oranje": 265, "rood": 265 },
-        "Hg":  { "groen": 1 },
-        "Pb":  { "groen": 200, "geel": 200, "oranje": 560, "rood": 560 },
-        "Ni":  { "groen": 100, "geel": 100, "oranje": 150, "rood": 200 },
-        "BaP": { "groen": 3.6, "geel": 4.9, "oranje": 6.3, "rood": 6.3 }
+        "As":  { "groen": 103, "rood": 103 },
+        "Cd":  { "groen": 6, "oranje": 6, "rood": 100 },
+        "Cr":  { "groen": 120, "geel": 120, "oranje": 240, "rood": 265 },
+        "Hg":  { "groen": 1, "geel": 1, "oranje": 4.8, "rood": 6.8 },
+        "Pb":  { "groen": 275, "geel": 275, "rood": 560 },
+        "Ni":  { "groen": 125, "geel": 125, "oranje": 150, "rood": 200 },
+        "BaP": { "groen": 3.6, "geel": 3.6, "oranje": 4.9, "rood": 6.3 }
       },
       "volkstuin": {
-        "As":  { "groen": 103, "oranje": 103, "rood": 103 },
-        "Cd":  { "groen": 6, "geel": 4.8, "oranje": 6.8, "rood": 6.8 },
-        "Cr":  { "groen": 120, "geel": 240, "oranje": 265, "rood": 265 },
-        "Hg":  { "groen": 1 },
-        "Pb":  { "groen": 275, "geel": 275, "oranje": 560, "rood": 560 },
-        "Ni":  { "groen": 125, "geel": 125, "oranje": 265, "rood": 447 },
-        "BaP": { "groen": 7.3, "geel": 7.3, "oranje": 16, "rood": 16 }
+        "As":  { "groen": 103, "oranje": 103 },
+        "Cd":  { "groen": 6, "oranje": 6 },
+        "Cr":  { "groen": 180, "geel": 180, "oranje": 255 },
+        "Hg":  { "groen": 1, "geel": 1, "oranje": 4.8 },
+        "Pb":  { "groen": 885, "geel": 885, "oranje": 1220 },
+        "Ni":  { "groen": 265, "geel": 265, "oranje": 447 },
+        "BaP": { "groen": 7.3, "geel": 7.3, "oranje": 16 }
       }
     },
     "cdUitzonderingPostcodes": ["2660", "2620", "2340", "2400", "2490", "3920", "3900", "3910", "3930"],
